@@ -29,7 +29,7 @@ def confidence_to_hsl(confidence):
     return "hsl(%s, 100%%, 30%%, 50%%)" % hue
 
 
-class Converter:
+class Formatter:
     def __init__(self, hocr, settings=None, image_path=None):
         self.image_path = image_path
         self.document = None
@@ -272,7 +272,7 @@ if __name__ == "__main__":
     products = [
     ]
 
-    c = Converter(hocr_data, {"scaling_factor": 1})
+    c = Formatter(hocr_data, {"scaling_factor": 1})
 
     for product in products:
         c.merge_words(product["hocr_name_ids"])

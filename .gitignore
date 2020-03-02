@@ -1,3 +1,4 @@
 env
 __pycache__
-hocr_converter.egg-info
+hocr_formatter.egg-info
+.idea
