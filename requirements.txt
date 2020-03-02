@@ -1,3 +1,4 @@
+bbox
 beautifulsoup4
 pillow
 git+https://github.com/spezifisch/hocr-parser.git#egg=hocr_parser

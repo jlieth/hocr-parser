@@ -4,22 +4,12 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from hocr_parser.parser import HOCRDocument, Word
 
+from bbox import BBox2D, XYXY
+
 try:
     from PIL import Image
 except ImportError:
     pass
-
-
-def coordinates_to_bbox(coordinates):
-    bbox = {
-        "left": coordinates[0],
-        "top": coordinates[1],
-        "right": coordinates[2],
-        "bottom": coordinates[3],
-        "height": abs(coordinates[3] - coordinates[1]),
-        "width": abs(coordinates[2] - coordinates[0])
-    }
-    return bbox
 
 
 def extract_confidence(word):
@@ -75,8 +65,8 @@ class Converter:
         heights = []
 
         for line in lines:
-            bbox = coordinates_to_bbox(line.coordinates)
-            heights.append(bbox["height"])
+            bbox = BBox2D(line.coordinates, mode=XYXY)
+            heights.append(bbox.height)
 
         heights.sort()
 
@@ -158,9 +148,9 @@ class Converter:
     def create_pages(self):
         self.document = HOCRDocument(self.hocr.prettify())
         for page in self.document.pages:
-            bbox = coordinates_to_bbox(page.coordinates)
-            height = self.settings["scaling_factor"] * bbox["height"]
-            width = self.settings["scaling_factor"] * bbox["width"]
+            bbox = BBox2D(page.coordinates, mode=XYXY)
+            height = self.settings["scaling_factor"] * bbox.height
+            width = self.settings["scaling_factor"] * bbox.width
 
             page_div = self.output.new_tag("div")
             page_div["class"] = "ocr_page"
@@ -199,7 +189,7 @@ class Converter:
         self.set_dimensons(hocr_obj, element)
 
         if class_name == "ocr_word":
-            bbox = coordinates_to_bbox(hocr_obj.coordinates)
+            bbox = BBox2D(hocr_obj.coordinates, mode=XYXY)
             #self.add_bboxed_image_to_dataset(element, bbox)
             element.append(hocr_obj.ocr_text)
             confidence = extract_confidence(hocr_obj._hocr_html)
@@ -213,23 +203,23 @@ class Converter:
     def add_bbox_to_dataset(self, element, bbox):
         scaling_factor = self.settings["scaling_factor"]
 
-        element["data-bbox-width"] = bbox["width"]
-        element["data-bbox-height"] = bbox["height"]
-        element["data-bbox-top"] = bbox["top"]
-        element["data-bbox-left"] = bbox["left"]
-        element["data-bbox-bottom"] = bbox["bottom"]
-        element["data-bbox-right"] = bbox["right"]
+        element["data-bbox-width"] = bbox.width
+        element["data-bbox-height"] = bbox.height
+        element["data-bbox-top"] = bbox.top
+        element["data-bbox-left"] = bbox.left
+        element["data-bbox-bottom"] = bbox.bottom
+        element["data-bbox-right"] = bbox.right
 
-        element["data-scaled-bbox-width"] = scaling_factor * bbox["width"]
-        element["data-scaled-bbox-height"] = scaling_factor * bbox["height"]
-        element["data-scaled-bbox-top"] = scaling_factor * bbox["top"]
-        element["data-scaled-bbox-left"] = scaling_factor * bbox["left"]
-        element["data-scaled-bbox-bottom"] = scaling_factor * bbox["bottom"]
-        element["data-scaled-bbox-right"] = scaling_factor * bbox["right"]
+        element["data-scaled-bbox-width"] = scaling_factor * bbox.width
+        element["data-scaled-bbox-height"] = scaling_factor * bbox.height
+        element["data-scaled-bbox-top"] = scaling_factor * bbox.top
+        element["data-scaled-bbox-left"] = scaling_factor * bbox.left
+        element["data-scaled-bbox-bottom"] = scaling_factor * bbox.bottom
+        element["data-scaled-bbox-right"] = scaling_factor * bbox.right
 
     def add_bboxed_image_to_dataset(self, element, bbox):
         img = Image.open(self.image_path)
-        box = (bbox["left"], bbox["top"], bbox["right"], bbox["bottom"])
+        box = (bbox.left, bbox.top, bbox.right, bbox.bottom)
         bboxed_image = img.crop(box)
         buffered = BytesIO()
         bboxed_image.save(buffered, format="JPEG")
@@ -239,16 +229,16 @@ class Converter:
     def set_position(self, hocr_obj, element):
         scaling_factor = self.settings["scaling_factor"]
         parent = hocr_obj.parent
-        child_bbox = hocr_obj.coordinates
+        child_coordinates = hocr_obj.coordinates
 
         if not parent:
-            bbox = coordinates_to_bbox(child_bbox)
-            left = scaling_factor * bbox["left"]
-            top = scaling_factor * bbox["top"]
+            bbox = BBox2D(child_coordinates, mode=XYXY)
+            left = scaling_factor * bbox.left
+            top = scaling_factor * bbox.top
         else:
             parent_bbox = parent.coordinates
-            left = scaling_factor * (child_bbox[0] - parent_bbox[0])
-            top = scaling_factor * (child_bbox[1] - parent_bbox[1])
+            left = scaling_factor * (child_coordinates[0] - parent_bbox[0])
+            top = scaling_factor * (child_coordinates[1] - parent_bbox[1])
 
         element["style"] = """
             position: absolute;
@@ -261,9 +251,9 @@ class Converter:
     def set_dimensons(self, hocr_obj, element):
         scaling_factor = self.settings["scaling_factor"]
 
-        bbox = coordinates_to_bbox(hocr_obj.coordinates)
-        width = scaling_factor * bbox["width"]
-        height = scaling_factor * bbox["height"]
+        bbox = BBox2D(hocr_obj.coordinates, mode=XYXY)
+        width = scaling_factor * bbox.width
+        height = scaling_factor * bbox.height
 
         element["style"] += """
             height: %spx;
