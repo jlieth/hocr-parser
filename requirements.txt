@@ -1,5 +1,6 @@
 bbox
 beautifulsoup4
+lxml
 pillow
 git+https://github.com/spezifisch/hocr-parser.git#egg=hocr_parser
 
