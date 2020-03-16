@@ -130,3 +130,59 @@ class HOCRNode:
             raise MalformedOCRException("Value of bbox arguments must be uint")
 
         return x0, y0, x1, y1
+
+    @property
+    def confidence(self) -> Optional[float]:
+        """Parses confidence properties and returns the value as a single float
+
+        The HOCR standard defines three different properties for indicating
+        the confidence of the given ocr word/character:
+        - x_wconf: http://kba.cloud/hocr-spec/1.2/#x_wconf
+          Property value should be a single float between 0 and 100 indicating
+          the confidence for the whole word
+        - x_confs: http://kba.cloud/hocr-spec/1.2/#x_confs
+          Property values should be one or more floats between 0 and 100
+          indicating the confidence for every recognized character
+        - nlp: http://kba.cloud/hocr-spec/1.2/#nlp
+          Property value is one or more floats, one for each recognized
+          character. NLP is the negative log probability and takes on values
+          between 0 and infinity for inputs between 0 and 1.
+
+        The confidence properties differ in what their values
+        actually represent: For x_wconf and x_confs, higher values mean a
+        higher confidence in the recognized word/character. The NLP is
+        a negative logarithm and therefore lower when the input is higher,
+        meaning that a low value of NLP indicates a high confidence.
+
+        Therefore, confidence values and NLP are neither directly comparable
+        nor can be averaged. Since the spec doesn't specify the base for the
+        logarithm, the NLP can't be converted to the input confidence either.
+
+        For the purpose of this method I'm only using the values of x_wconf
+        and x_confs. If x_wconf is given, its value is returned. If not,
+        x_confs is checked and if given, all values are averaged and returned.
+        If neither x_wconf nor x_confs is given, None is returned.
+
+        :return: A float if x_confs and/or x_wconf properties are given in
+                 the title string of the element; otherwise None
+        """
+        # return x_wconf if it is given
+        x_wconf = self.ocr_properties.get("x_wconf")
+        if x_wconf:
+            try:
+                return float(x_wconf)
+            except ValueError:
+                raise MalformedOCRException(f"Value of x_wconf must be float")
+
+        # return averaged x_confs if given
+        x_confs = self.ocr_properties.get("x_confs")
+        if x_confs:
+            values = x_confs.split(" ")
+
+            try:
+                confidences = [float(x) for x in values]
+            except ValueError:
+                raise MalformedOCRException(f"Values of x_confs must be float")
+
+            # return average confidence
+            return sum(confidences) / len(confidences)

@@ -1,3 +1,5 @@
+import math
+
 import lxml.html
 import pytest
 
@@ -174,3 +176,38 @@ class TestOCRNode:
         elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194 247'>Foo</p>")
         node = HOCRNode(elem)
         assert node.coordinates == (103, 215, 194, 247)
+
+    def test_confidences(self):
+        # no confidence property given should return None
+        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194'>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.confidence is None
+
+        # x_wconf given should return its value (as float)
+        elem = lxml.html.fragment_fromstring("<p title='x_wconf 80'>Foo</p>")
+        node = HOCRNode(elem)
+        assert type(node.confidence) == float
+        assert math.isclose(node.confidence, 80)
+
+        # malformed x_wconf should raise MalformedOCRException
+        elem = lxml.html.fragment_fromstring("<p title='x_wconf eighty'>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.confidence
+
+        # x_confs given should result in average of its values
+        elem = lxml.html.fragment_fromstring("<p title='x_confs 20 7 90'>Foo</p>")
+        node = HOCRNode(elem)
+        assert type(node.confidence) == float
+        assert math.isclose(node.confidence, 39)
+
+        # malformed x_confs should raise MalformedOCRException
+        elem = lxml.html.fragment_fromstring("<p title='x_confs a b c'>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.confidence
+
+        # x_wconf should take precedence over x_confs
+        elem = lxml.html.fragment_fromstring("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
+        node = HOCRNode(elem)
+        assert math.isclose(node.confidence, 80)
