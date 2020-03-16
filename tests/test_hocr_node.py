@@ -150,3 +150,27 @@ class TestOCRNode:
         node = HOCRNode(elem)
         with pytest.raises(MalformedOCRException):
             _ = node.ocr_properties
+
+    def test_coordinates(self):
+        # no bbox given
+        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.coordinates
+
+        # wrong number of coordinates
+        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194'>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.coordinates
+
+        # not ints
+        elem = lxml.html.fragment_fromstring("<p title='bbox a b c d'>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.coordinates
+
+        # all fine
+        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194 247'>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.coordinates == (103, 215, 194, 247)

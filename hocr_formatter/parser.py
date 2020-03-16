@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Tuple
 
 import lxml.html
 import lxml.etree
@@ -109,3 +109,24 @@ class HOCRNode:
             d[key] = val
 
         return d
+
+    @property
+    def coordinates(self) -> Tuple[int, int, int, int]:
+        bbox = self.ocr_properties.get("bbox")
+        if not bbox:
+            raise MalformedOCRException("Elements must have the bbox property")
+
+        # parse args
+        args = bbox.split(" ")
+        if not len(args) == 4:
+            raise MalformedOCRException("Number of bbox args must be four")
+
+        try:
+            x0 = int(args[0])
+            y0 = int(args[1])
+            x1 = int(args[2])
+            y1 = int(args[3])
+        except ValueError:
+            raise MalformedOCRException("Value of bbox arguments must be uint")
+
+        return x0, y0, x1, y1
