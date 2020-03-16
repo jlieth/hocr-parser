@@ -74,3 +74,53 @@ class TestOCRNode:
 
         # p node should return body node as parent
         assert p.parent == body
+
+    def test_children(self):
+        s = """
+            <body>
+                <div class="ocr_carea">
+                    <span class="ocrx_word">Foo</span>
+                    <span class="non_ocr">Bar</span>
+                    Random text
+                    <span class="ocrx_word">Baz</span> 
+                </div>
+                <!-- comment -->
+                <br>
+                <span class="ocrx_word">Foo</span>
+                Random text
+                <p>
+                    <span class="ocrx_word">Foo</span>
+                    <span class="non_ocr">Bar</span>
+                    Random text
+                    <span class="ocrx_word">Baz</span> 
+                </p>
+                <p>Random text</p>
+                <span class="ocr_line">
+                    <span class="non_ocr">Bar</span>
+                    Random text
+                </span>
+            </body>
+        """
+
+        body = self.get_body_node_from_string(s)
+        assert list(body.children) == list(body.elem.iterchildren())
+
+    def test_id(self):
+        elem = lxml.html.fragment_fromstring("<span id='word1'>Foo</span>")
+        node = HOCRNode(elem)
+        assert node.id == "word1"
+
+        # no id
+        elem = lxml.html.fragment_fromstring("<span>Foo</span>")
+        node = HOCRNode(elem)
+        assert node.id is None
+
+    def test_ocr_class(self):
+        elem = lxml.html.fragment_fromstring("<p class='ocr_line'>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.ocr_class == "ocr_line"
+
+        # no ocr_class (should only happen on body element)
+        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.ocr_class is None

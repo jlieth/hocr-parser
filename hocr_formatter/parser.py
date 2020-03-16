@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Iterable, Optional
 
 import lxml.html
 import lxml.etree
@@ -75,3 +75,15 @@ class HOCRNode:
         parent = self.elem.getparent()
         if parent is not None:
             return HOCRNode(parent)
+
+    @property
+    def children(self) -> Iterable["HOCRNode"]:
+        return self.elem.iterchildren()
+
+    @property
+    def id(self) -> Optional[str]:
+        return self.elem.get("id")
+
+    @property
+    def ocr_class(self) -> Optional[str]:
+        return self.elem.get("class")
