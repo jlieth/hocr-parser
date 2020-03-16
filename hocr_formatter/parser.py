@@ -1,8 +1,12 @@
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 
 import lxml.html
 import lxml.etree
 from lxml.doctestcompare import LHTMLOutputChecker, PARSE_HTML
+
+
+class MalformedOCRException(Exception):
+    pass
 
 
 class HOCRParser:
@@ -87,3 +91,21 @@ class HOCRNode:
     @property
     def ocr_class(self) -> Optional[str]:
         return self.elem.get("class")
+
+    @property
+    def ocr_properties(self) -> Dict[str, str]:
+        d = {}
+
+        title = self.elem.get("title", "")
+        if title == "":
+            return d
+
+        for prop in title.split(";"):
+            prop = prop.strip()
+            splt = prop.split(" ", 1)
+            if not len(splt) == 2:
+                raise MalformedOCRException(f"Malformed properties: {prop}")
+            key, val = splt
+            d[key] = val
+
+        return d

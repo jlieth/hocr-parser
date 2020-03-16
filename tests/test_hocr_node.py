@@ -1,6 +1,7 @@
 import lxml.html
+import pytest
 
-from hocr_formatter.parser import HOCRNode
+from hocr_formatter.parser import HOCRNode, MalformedOCRException
 
 
 class TestOCRNode:
@@ -124,3 +125,28 @@ class TestOCRNode:
         elem = lxml.html.fragment_fromstring("<p>Foo</p>")
         node = HOCRNode(elem)
         assert node.ocr_class is None
+
+    def test_ocr_properties(self):
+        # no title attribute
+        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.ocr_properties == {}
+
+        # empty title string
+        elem = lxml.html.fragment_fromstring("<p title=''>Foo</p>")
+        node = HOCRNode(elem)
+        assert node.ocr_properties == {}
+
+        # with properties
+        elem = lxml.html.fragment_fromstring(
+            "<p title='bbox 103 215 194 247; x_wconf 93'>Foo</p>"
+        )
+        node = HOCRNode(elem)
+        expected_properties = {"x_wconf": "93", "bbox": "103 215 194 247"}
+        assert node.ocr_properties == expected_properties
+
+        # malformed
+        elem = lxml.html.fragment_fromstring("<p title='foo; bar baz'>Foo</p>")
+        node = HOCRNode(elem)
+        with pytest.raises(MalformedOCRException):
+            _ = node.ocr_properties
