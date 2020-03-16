@@ -1,6 +1,8 @@
 from typing import Optional
 
 import lxml.html
+import lxml.etree
+from lxml.doctestcompare import LHTMLOutputChecker, PARSE_HTML
 
 
 class HOCRParser:
@@ -25,6 +27,36 @@ class HOCRNode:
 
     def __init__(self, elem: lxml.html.HtmlElement):
         self.elem = elem
+
+    def __eq__(self, o: object) -> bool:
+        """Compares the HOCRNode to another object
+
+        The problem with comparing HTML is that minor differences in markup
+        still represent the same tree with the same elements. lxml has a
+        utility meant to make output checking in doctests more readable
+        by comparing the functional equivalency. Read here:
+        https://lxml.de/lxmlhtml.html#running-html-doctests
+
+        Though this isn't a doctest, this functionality is essentially what
+        is needed to compare two nodes. The comparator lives in
+        lxml.doctestcompare.LHTMLOutputChecker, which is used with the
+        PARSE_HTML optionflag.
+
+        The following is considered functionally equivalent by the output
+        checker and will therefore evaluate as true:
+        - Different order of attributes
+        - Repeated spaces inside a tag
+        - Whitespace between tags
+        """
+        if not type(self) == type(o):
+            return False
+
+        checker = LHTMLOutputChecker()
+        return checker.check_output(
+            want=lxml.etree.tostring(self.elem),
+            got=lxml.etree.tostring(o.elem),
+            optionflags=PARSE_HTML
+        )
 
     @property
     def parent(self) -> Optional["HOCRNode"]:
