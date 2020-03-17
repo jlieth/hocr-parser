@@ -1,6 +1,7 @@
 import math
 
 import lxml.html
+import lxml.etree
 import pytest
 
 from hocr_formatter.parser import HOCRNode, MalformedOCRException
@@ -9,9 +10,14 @@ from hocr_formatter.parser import HOCRNode, MalformedOCRException
 class TestOCRNode:
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
-        document = lxml.html.document_fromstring(s)
-        body = document.find("body")
-        return HOCRNode(body)
+        return HOCRNode.from_string(s).find("body")
+
+    @staticmethod
+    def get_element_node_from_string(s: str) -> HOCRNode:
+        lookup = lxml.etree.ElementDefaultClassLookup(element=HOCRNode)
+        parser = lxml.etree.HTMLParser(encoding="utf-8")
+        parser.set_element_class_lookup(lookup)
+        return lxml.html.fragment_fromstring(s, parser=parser)
 
     def test_equality(self):
         # different type should not be equal
@@ -70,10 +76,7 @@ class TestOCRNode:
 
     def test_parent(self):
         body = self.get_body_node_from_string("<body><p>test</p></body>")
-        p = HOCRNode(body.elem.find("p"))
-
-        # body node should return no parent
-        assert body.parent is None
+        p = body.find("p")
 
         # p node should return body node as parent
         assert p.parent == body
@@ -106,108 +109,90 @@ class TestOCRNode:
         """
 
         body = self.get_body_node_from_string(s)
-        assert list(body.children) == list(body.elem.iterchildren())
+        assert list(body.children) == list(body.iterchildren())
 
     def test_id(self):
-        elem = lxml.html.fragment_fromstring("<span id='word1'>Foo</span>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<span id='word1'>Foo</span>")
         assert node.id == "word1"
 
         # no id
-        elem = lxml.html.fragment_fromstring("<span>Foo</span>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<span>Foo</span>")
         assert node.id is None
 
     def test_ocr_class(self):
-        elem = lxml.html.fragment_fromstring("<p class='ocr_line'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p class='ocr_line'>Foo</p>")
         assert node.ocr_class == "ocr_line"
 
         # no ocr_class (should only happen on body element)
-        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p>Foo</p>")
         assert node.ocr_class is None
 
     def test_ocr_properties(self):
         # no title attribute
-        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p>Foo</p>")
         assert node.ocr_properties == {}
 
         # empty title string
-        elem = lxml.html.fragment_fromstring("<p title=''>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title=''>Foo</p>")
         assert node.ocr_properties == {}
 
         # with properties
-        elem = lxml.html.fragment_fromstring(
+        node = self.get_element_node_from_string(
             "<p title='bbox 103 215 194 247; x_wconf 93'>Foo</p>"
         )
-        node = HOCRNode(elem)
         expected_properties = {"x_wconf": "93", "bbox": "103 215 194 247"}
         assert node.ocr_properties == expected_properties
 
         # malformed
-        elem = lxml.html.fragment_fromstring("<p title='foo; bar baz'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='foo; bar baz'>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.ocr_properties
 
     def test_coordinates(self):
         # no bbox given
-        elem = lxml.html.fragment_fromstring("<p>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.coordinates
 
         # wrong number of coordinates
-        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.coordinates
 
         # not ints
-        elem = lxml.html.fragment_fromstring("<p title='bbox a b c d'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='bbox a b c d'>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.coordinates
 
         # all fine
-        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194 247'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='bbox 103 215 194 247'>Foo</p>")
         assert node.coordinates == (103, 215, 194, 247)
 
     def test_confidences(self):
         # no confidence property given should return None
-        elem = lxml.html.fragment_fromstring("<p title='bbox 103 215 194'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
         assert node.confidence is None
 
         # x_wconf given should return its value (as float)
-        elem = lxml.html.fragment_fromstring("<p title='x_wconf 80'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='x_wconf 80'>Foo</p>")
         assert type(node.confidence) == float
         assert math.isclose(node.confidence, 80)
 
         # malformed x_wconf should raise MalformedOCRException
-        elem = lxml.html.fragment_fromstring("<p title='x_wconf eighty'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='x_wconf eighty'>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.confidence
 
         # x_confs given should result in average of its values
-        elem = lxml.html.fragment_fromstring("<p title='x_confs 20 7 90'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='x_confs 20 7 90'>Foo</p>")
         assert type(node.confidence) == float
         assert math.isclose(node.confidence, 39)
 
         # malformed x_confs should raise MalformedOCRException
-        elem = lxml.html.fragment_fromstring("<p title='x_confs a b c'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='x_confs a b c'>Foo</p>")
         with pytest.raises(MalformedOCRException):
             _ = node.confidence
 
         # x_wconf should take precedence over x_confs
-        elem = lxml.html.fragment_fromstring("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
-        node = HOCRNode(elem)
+        node = self.get_element_node_from_string("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
         assert math.isclose(node.confidence, 80)

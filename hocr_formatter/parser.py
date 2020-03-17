@@ -13,24 +13,30 @@ class HOCRParser:
     def __init__(self, filename: str):
         with open(filename, encoding="utf-8") as f:
             data = f.read()
-            self.html = lxml.html.document_fromstring(data)
+
+        self.html = HOCRNode.from_string(data)
 
     @property
     def root(self) -> Optional["HOCRNode"]:
         element = self.html.find("body")
         if element is not None:
-            return HOCRNode(element)
+            return element
 
 
-class HOCRNode:
+class HOCRNode(lxml.html.HtmlElement):
     """Wrapper class for a lxml.html.HtmlElement
 
     This class isn't meant to be used by itself. It is utilised by the
     HOCRParser class to represent the elements of the HTML tree.
     """
+    HTML = True
 
-    def __init__(self, elem: lxml.html.HtmlElement):
-        self.elem = elem
+    @staticmethod
+    def from_string(s: str) -> "HOCRNode":
+        lookup = lxml.etree.ElementDefaultClassLookup(element=HOCRNode)
+        parser = lxml.etree.HTMLParser(encoding="utf-8")
+        parser.set_element_class_lookup(lookup)
+        return lxml.html.document_fromstring(s, parser=parser)
 
     def __eq__(self, o: object) -> bool:
         """Compares the HOCRNode to another object
@@ -57,8 +63,8 @@ class HOCRNode:
 
         checker = LHTMLOutputChecker()
         return checker.check_output(
-            want=lxml.etree.tostring(self.elem),
-            got=lxml.etree.tostring(o.elem),
+            want=lxml.etree.tostring(self),
+            got=lxml.etree.tostring(o),
             optionflags=PARSE_HTML
         )
 
@@ -66,37 +72,28 @@ class HOCRNode:
     def parent(self) -> Optional["HOCRNode"]:
         """Returns the parent node of this node
 
-        The body node is the outer wrapper of the HOCR document and doesn't
-        have a parent.
-
         :return: HOCRNode, or None
         """
-        # don't return parent if current node is the body element
-        if self.elem.tag == "body":
-            return None
-
-        # return parent if it exists
-        parent = self.elem.getparent()
-        if parent is not None:
-            return HOCRNode(parent)
+        # return parent
+        return self.getparent()
 
     @property
     def children(self) -> Iterable["HOCRNode"]:
-        return self.elem.iterchildren()
+        return self.iterchildren()
 
     @property
     def id(self) -> Optional[str]:
-        return self.elem.get("id")
+        return self.get("id")
 
     @property
     def ocr_class(self) -> Optional[str]:
-        return self.elem.get("class")
+        return self.get("class")
 
     @property
     def ocr_properties(self) -> Dict[str, str]:
         d = {}
 
-        title = self.elem.get("title", "")
+        title = self.get("title", "")
         if title == "":
             return d
 
