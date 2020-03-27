@@ -4,6 +4,8 @@ import lxml.html
 import lxml.etree
 from lxml.doctestcompare import LHTMLOutputChecker, PARSE_HTML
 
+from hocr_formatter.bbox import BBox
+
 
 class MalformedOCRException(Exception):
     pass
@@ -115,7 +117,7 @@ class HOCRNode(lxml.html.HtmlElement):
         return d
 
     @property
-    def coordinates(self) -> Tuple[int, int, int, int]:
+    def bbox(self) -> BBox:
         bbox = self.ocr_properties.get("bbox")
         if not bbox:
             raise MalformedOCRException("Elements must have the bbox property")
@@ -133,7 +135,7 @@ class HOCRNode(lxml.html.HtmlElement):
         except ValueError:
             raise MalformedOCRException("Value of bbox arguments must be uint")
 
-        return x0, y0, x1, y1
+        return BBox((x0, y0, x1, y1))
 
     @property
     def confidence(self) -> Optional[float]:

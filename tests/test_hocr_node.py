@@ -4,6 +4,7 @@ import lxml.html
 import lxml.etree
 import pytest
 
+from hocr_formatter.bbox import BBox
 from hocr_formatter.parser import HOCRNode, MalformedOCRException
 
 
@@ -152,21 +153,21 @@ class TestOCRNode:
         # no bbox given
         node = self.get_element_node_from_string("<p>Foo</p>")
         with pytest.raises(MalformedOCRException):
-            _ = node.coordinates
+            _ = node.bbox
 
         # wrong number of coordinates
         node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
         with pytest.raises(MalformedOCRException):
-            _ = node.coordinates
+            _ = node.bbox
 
         # not ints
         node = self.get_element_node_from_string("<p title='bbox a b c d'>Foo</p>")
         with pytest.raises(MalformedOCRException):
-            _ = node.coordinates
+            _ = node.bbox
 
         # all fine
         node = self.get_element_node_from_string("<p title='bbox 103 215 194 247'>Foo</p>")
-        assert node.coordinates == (103, 215, 194, 247)
+        assert node.bbox == BBox((103, 215, 194, 247))
 
     def test_confidences(self):
         # no confidence property given should return None
