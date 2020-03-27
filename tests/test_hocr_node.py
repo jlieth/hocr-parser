@@ -121,12 +121,21 @@ class TestOCRNode:
         assert node.id is None
 
     def test_ocr_class(self):
+        # no class name should return None
+        node = self.get_element_node_from_string("<p>Foo</p>")
+        assert node.ocr_class is None
+
+        # a class name not starting with ocr should return None
+        node = self.get_element_node_from_string("<p class='bar'>Foo</p>")
+        assert node.ocr_class is None
+
+        # ocr class name should be returned correctly
         node = self.get_element_node_from_string("<p class='ocr_line'>Foo</p>")
         assert node.ocr_class == "ocr_line"
 
-        # no ocr_class (should only happen on body element)
-        node = self.get_element_node_from_string("<p>Foo</p>")
-        assert node.ocr_class is None
+        # multiple class names
+        node = self.get_element_node_from_string("<p class='foo ocr_line'>Foo</p>")
+        assert node.ocr_class == "ocr_line"
 
     def test_ocr_properties(self):
         # no title attribute

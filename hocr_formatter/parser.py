@@ -113,7 +113,19 @@ class HOCRNode(lxml.html.HtmlElement):
 
     @property
     def ocr_class(self) -> Optional[str]:
-        return self.get("class")
+        """Returns the html class name of the node (but only if node is ocr)
+
+        All elements defined in the HOCR specification start with ocr.
+        If the class name of an element does not start with ocr, it is
+        therefore not an ocr element as defined by the spec.
+
+        :return: The class name as str, or None
+        """
+        for class_ in self.classes:
+            if class_.startswith("ocr"):
+                return class_
+
+        return None
 
     @property
     def ocr_properties(self) -> Dict[str, str]:
