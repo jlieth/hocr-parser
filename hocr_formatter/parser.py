@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Iterable, Optional, Tuple, Union
 
 import lxml.html
 import lxml.etree
@@ -12,9 +12,8 @@ class MalformedOCRException(Exception):
 class HOCRParser:
     def __init__(self, filename: str):
         with open(filename, encoding="utf-8") as f:
-            data = f.read()
-
-        self.html = HOCRNode.from_string(data)
+            data = bytes(f.read(), encoding="utf-8")
+            self.html = HOCRNode.from_string(data)
 
     @property
     def root(self) -> Optional["HOCRNode"]:
@@ -32,7 +31,7 @@ class HOCRNode(lxml.html.HtmlElement):
     HTML = True
 
     @staticmethod
-    def from_string(s: str) -> "HOCRNode":
+    def from_string(s: Union[str, bytes]) -> "HOCRNode":
         lookup = lxml.etree.ElementDefaultClassLookup(element=HOCRNode)
         parser = lxml.etree.HTMLParser(encoding="utf-8")
         parser.set_element_class_lookup(lookup)
