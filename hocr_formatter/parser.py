@@ -21,6 +21,14 @@ class HOCRParser:
         if element is not None:
             return element
 
+    def iter(self) -> Iterable["HOCRNode"]:
+        """Iterates tree in DFS order"""
+        queue = [self.root]
+        while len(queue) > 0:
+            node = queue.pop(0)
+            yield node
+            queue = node.children + queue
+
 
 class HOCRNode(lxml.html.HtmlElement):
     """Wrapper class for a lxml.html.HtmlElement
