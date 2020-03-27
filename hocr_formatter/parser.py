@@ -146,10 +146,18 @@ class HOCRNode(lxml.html.HtmlElement):
         return d
 
     @property
-    def bbox(self) -> BBox:
+    def bbox(self) -> Optional[BBox]:
+        """Parses the bbox ocr property and returns is as BBox instance
+
+        :return: BBox instance, or None if the element has no bbox property
+
+        :raises hocr_formatter.parser.MalformedOCRException: If the bbox
+            property in the title attribute is malformed (wrong number of
+            arguments or wrong type of arguments)
+        """
         bbox = self.ocr_properties.get("bbox")
         if not bbox:
-            raise MalformedOCRException("Elements must have the bbox property")
+            return None
 
         # parse args
         args = bbox.split(" ")

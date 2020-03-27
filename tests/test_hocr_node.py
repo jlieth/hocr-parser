@@ -158,11 +158,10 @@ class TestOCRNode:
         with pytest.raises(MalformedOCRException):
             _ = node.ocr_properties
 
-    def test_coordinates(self):
+    def test_bbox(self):
         # no bbox given
         node = self.get_element_node_from_string("<p>Foo</p>")
-        with pytest.raises(MalformedOCRException):
-            _ = node.bbox
+        assert node.bbox is None
 
         # wrong number of coordinates
         node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
