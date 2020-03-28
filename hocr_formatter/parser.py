@@ -19,6 +19,10 @@ class HOCRParser:
 
     @property
     def root(self) -> Optional["HOCRNode"]:
+        """Returns the body node of the document if available
+
+        :return: body element as HOCRNode, or None if no body tag exists
+        """
         element = self.html.find("body")
         if element is not None:
             return element
