@@ -41,12 +41,8 @@ class HOCRParser:
         return BBox.max_bbox(boxes)
 
     def iter(self) -> Iterable["HOCRNode"]:
-        """Iterates tree in DFS order"""
-        queue = [self.root]
-        while len(queue) > 0:
-            node = queue.pop(0)
-            yield node
-            queue = node.children + queue
+        """Iterates tree in depth first pre-order"""
+        return self.root.iter()
 
 
 class HOCRNode(lxml.html.HtmlElement):
