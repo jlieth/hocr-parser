@@ -25,3 +25,17 @@ class TestOCRNode:
         expected = self.get_body_node_from_string("<body><p>Foo</p></body>")
         assert p.root == expected
 
+    def test_bbox(self):
+        # no bboxes at all
+        p = self.get_parser_for_file("parser_test_bbox_no_boxes.hocr")
+        assert p.bbox is None
+
+        # one bbox
+        p = self.get_parser_for_file("parser_test_bbox_one_box.hocr")
+        expected = BBox((0, 0, 1000, 1000))
+        assert p.bbox == expected
+
+        # nested + overlapping bboxes
+        p = self.get_parser_for_file("parser_test_bbox_overlapping_boxes.hocr")
+        expected = BBox((25, 25, 1175, 650))
+        assert p.bbox == expected
