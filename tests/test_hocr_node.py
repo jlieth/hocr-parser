@@ -177,6 +177,42 @@ class TestOCRNode:
         node = self.get_element_node_from_string("<p title='bbox 103 215 194 247'>Foo</p>")
         assert node.bbox == BBox((103, 215, 194, 247))
 
+    def test_parent_bbox(self):
+        # no parent (should only happen on html tag, but anyway)
+        s = "<html><body></body></html>"
+        html = self.get_body_node_from_string(s).parent
+        assert html.parent_bbox is None
+
+        # parent has no bbox
+        s = "<body><div><p id='node'>Foo</p></div></body>"
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        assert node.parent_bbox is None
+
+        # direct parent has bbox
+        s = "<body><div title='bbox 1 5 17 33'><p id='node'>Foo</p></div></body>"
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        expected = BBox((1, 5, 17, 33))
+        assert node.parent_bbox == expected
+
+        # more distant ancestor has bbox
+        s = """
+            <body>
+                <div title='bbox 1 5 17 33'>
+                    <div>
+                        <p>
+                            <span id='node'>Foo</span>
+                        </p>
+                    </div>
+                </div>
+            </body>
+        """
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        expected = BBox((1, 5, 17, 33))
+        assert node.parent_bbox == expected
+
     def test_confidences(self):
         # no confidence property given should return None
         node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")

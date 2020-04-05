@@ -147,7 +147,15 @@ class HOCRNode(lxml.html.HtmlElement):
 
     @property
     def bbox(self) -> Optional[BBox]:
-        """Parses the bbox ocr property and returns is as BBox instance
+        """Parses the bbox hocr property and returns it as BBox instance
+
+        bbox property spec:
+        http://kba.cloud/hocr-spec/1.2/#bbox
+
+        The bbox defines the rectangular bounding box around the hocr element.
+        It's given in XYXY format, meaning the first two arguments are the
+        coordinates of the upper-left corner of the bounding box and the last
+        two arguments are the coordinates of the lower-right corner.
 
         :return: BBox instance, or None if the element has no bbox property
 
@@ -173,6 +181,22 @@ class HOCRNode(lxml.html.HtmlElement):
             raise MalformedOCRException("Value of bbox arguments must be uint")
 
         return BBox((x0, y0, x1, y1))
+
+    @property
+    def parent_bbox(self) -> Optional[BBox]:
+        """Returns the BBox of the node closest up in the tree that has a BBox
+
+        Traverses the tree upwards through the parent and looks for the first
+        node that defines a BBox.
+
+        :return: BBox instance, or None if no parent with a BBox exists
+        """
+        parent = self.parent
+        while parent is not None:
+            if parent.bbox:
+                return parent.bbox
+            else:
+                parent = parent.parent
 
     @property
     def confidence(self) -> Optional[float]:
