@@ -199,6 +199,41 @@ class HOCRNode(lxml.html.HtmlElement):
                 parent = parent.parent
 
     @property
+    def rel_bbox(self) -> Optional[BBox]:
+        """Returns a BBox with coordinates relative to the parent element
+
+        The coordinates given in the HOCR bbox attribute are absolute (in the
+        sense that they give the coordinates in pixels relative to the source
+        picture's origin).
+
+        This method calculates the offset (in pixels) of the current element
+        relative to the bbox of the closest ancestor that has a bbox property.
+
+        Possible return values:
+        - None if the current element has no bbox property
+        - if none of the element's ancestors has a bbox property, the
+          returned rel_bbox will equal its bbox
+        - if any if the element's ancestors has a bbox property, the
+          returned bbox will be the offset of the bbox coordinates relative
+          to the upper left corner of the bbox of the closest ancestor
+
+        :return: A BBox instance, or None
+        """
+        if self.bbox is None:
+            return None
+
+        parent_bbox = self.parent_bbox
+        if parent_bbox is None:
+            return self.bbox
+
+        return BBox((
+            self.bbox.x1 - parent_bbox.x1,
+            self.bbox.y1 - parent_bbox.y1,
+            self.bbox.x2 - parent_bbox.x1,
+            self.bbox.y2 - parent_bbox.y1
+        ))
+
+    @property
     def confidence(self) -> Optional[float]:
         """Parses confidence properties and returns the value as a single float
 

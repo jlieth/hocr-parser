@@ -213,6 +213,59 @@ class TestOCRNode:
         expected = BBox((1, 5, 17, 33))
         assert node.parent_bbox == expected
 
+    def test_rel_bbox(self):
+        # no bbox on element
+        s = "<body><div title='bbox 1 5 17 33'><p id='node'>Foo</p></div></body>"
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        assert node.rel_bbox is None
+
+        # bbox on element + bbox on direct ancestor
+        s = """
+            <body>
+                <span class="ocr_line" title="bbox 10 20 110 40">
+                    <span class="ocr_word" id="node" title="bbox 43 20 76 40">Foo</span>
+                </span>
+            </body>
+        """
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        expected = BBox((33, 0, 66, 20))
+        assert node.rel_bbox == expected
+
+        # bbox on element + bbox on more distant ancestor
+        s = """
+            <body>
+                <div class="ocr_carea" title="bbox 5 15 115 45">
+                    <span class="ocr_line">
+                        <span class="ocr_word" id="node" title="bbox 43 20 76 40">
+                            Foo
+                        </span>
+                    </span>
+                </div>
+            </body>
+        """
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        expected = BBox((38, 5, 71, 25))
+        assert node.rel_bbox == expected
+
+        # bbox on element + no bbox on ancestors
+        s = """
+            <body>
+                <div class="ocr_carea">
+                    <span class="ocr_line">
+                        <span class="ocr_word" id="node" title="bbox 43 20 76 40">
+                            Foo
+                        </span>
+                    </span>
+                </div>
+            </body>
+        """
+        body = self.get_body_node_from_string(s)
+        node = body.get_element_by_id("node")
+        assert node.rel_bbox == node.bbox
+
     def test_confidences(self):
         # no confidence property given should return None
         node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
