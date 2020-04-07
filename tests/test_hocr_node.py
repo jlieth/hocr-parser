@@ -4,7 +4,7 @@ import lxml.html
 import lxml.etree
 import pytest
 
-from hocr_formatter.bbox import BBox
+from hocr_formatter.bbox_wrapper import BBox
 from hocr_formatter.parser import HOCRNode, MalformedOCRException
 
 
