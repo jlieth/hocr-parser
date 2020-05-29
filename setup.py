@@ -20,8 +20,8 @@ DEV_REQUIREMENTS = [
 ]
 
 setup(
-    name="hocr-formatter",
-    version="0.2.0",
+    name="hocr-parser",
+    version="0.3.0",
     author="jlieth",
     license="GNU General Public License v3 (GPLv3)",
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*"]),
@@ -35,3 +35,4 @@ setup(
         "Programming Language :: Python :: 3",
     ],
 )
+
