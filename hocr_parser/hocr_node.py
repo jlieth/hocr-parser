@@ -12,7 +12,7 @@ class HOCRNode(lxml.html.HtmlElement):
     """Wrapper class for a lxml.html.HtmlElement
 
     This class isn't meant to be used by itself. It is utilised by the
-    HOCRParser class to represent the elements of the HTML tree.
+    HOCRDocument class to represent the elements of the HTML tree.
     """
     HTML = True
 

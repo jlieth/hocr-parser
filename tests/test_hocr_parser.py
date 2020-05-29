@@ -1,16 +1,16 @@
 import os
 
 from hocr_parser.bbox import BBox
-from hocr_parser.parser import HOCRParser
+from hocr_parser.hocr_document import HOCRDocument
 from hocr_parser.hocr_node import HOCRNode
 
 
 class TestOCRNode:
     @staticmethod
-    def get_parser_for_file(s: str) -> HOCRParser:
+    def get_parser_for_file(s: str) -> HOCRDocument:
         pwd = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(pwd, "testdata", s)
-        return HOCRParser(filepath)
+        return HOCRDocument(filepath)
 
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:

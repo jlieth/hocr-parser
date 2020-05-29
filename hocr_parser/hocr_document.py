@@ -4,7 +4,7 @@ from .bbox import BBox
 from .hocr_node import HOCRNode
 
 
-class HOCRParser:
+class HOCRDocument:
     def __init__(self, filename: str):
         with open(filename, encoding="utf-8") as f:
             data = bytes(f.read(), encoding="utf-8")
