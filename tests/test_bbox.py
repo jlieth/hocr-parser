@@ -1,4 +1,4 @@
-from hocr_formatter.bbox_wrapper import BBox
+from hocr_parser.bbox_wrapper import BBox
 
 
 class TestBBox:

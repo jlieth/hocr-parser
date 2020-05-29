@@ -2,13 +2,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
-REQUIREMENTS = [
-    "bbox",
-    "beautifulsoup4",
-    "lxml",
-    "pillow",
-    "hocr_parser"
-]
+REQUIREMENTS = ["bbox", "lxml"]
 
 DEV_REQUIREMENTS = [
     "tox",
