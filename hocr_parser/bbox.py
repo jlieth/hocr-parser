@@ -2,8 +2,6 @@ from typing import Optional, Sequence, Tuple
 
 
 class BBox:
-    """Wrapper for the BBox2D class from the bbox package."""
-
     def __init__(self, x: Tuple[int, int, int, int]):
         """
         Creates a new bbox from given tuple x containing four integer values.
