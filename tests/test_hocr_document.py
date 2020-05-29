@@ -1,11 +1,14 @@
 import os
 
+import pytest
+
 from hocr_parser.bbox import BBox
+from hocr_parser.exceptions import EmptyDocumentException
 from hocr_parser.hocr_document import HOCRDocument
 from hocr_parser.hocr_node import HOCRNode
 
 
-class TestOCRNode:
+class TestOCRDocument:
     @staticmethod
     def get_parser_for_file(s: str) -> HOCRDocument:
         pwd = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +18,15 @@ class TestOCRNode:
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
         return HOCRNode.from_string(s).find("body")
+
+    def test_init(self):
+        # test empty file
+        with pytest.raises(EmptyDocumentException):
+            _ = self.get_parser_for_file("empty_file.hocr")
+
+        # test valid file
+        doc = self.get_parser_for_file("valid_file.hocr")
+        assert isinstance(doc.html, HOCRNode)
 
     def test_root(self):
         # test hocr file without body tag

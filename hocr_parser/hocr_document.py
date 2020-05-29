@@ -1,6 +1,7 @@
 from typing import Iterable, Optional
 
 from .bbox import BBox
+from .exceptions import EmptyDocumentException
 from .hocr_node import HOCRNode
 
 
@@ -8,6 +9,8 @@ class HOCRDocument:
     def __init__(self, filename: str):
         with open(filename, encoding="utf-8") as f:
             data = bytes(f.read(), encoding="utf-8")
+            if len(data) == 0:
+                raise EmptyDocumentException("Document is empty")
             self.html = HOCRNode.from_string(data)
 
     @property
