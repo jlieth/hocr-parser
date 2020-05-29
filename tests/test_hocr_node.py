@@ -5,7 +5,8 @@ import lxml.etree
 import pytest
 
 from hocr_parser.bbox import BBox
-from hocr_parser.parser import HOCRNode, MalformedOCRException
+from hocr_parser.exceptions import MalformedOCRException
+from hocr_parser.hocr_node import HOCRNode
 
 
 class TestOCRNode:

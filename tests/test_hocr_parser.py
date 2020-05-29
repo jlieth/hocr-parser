@@ -1,7 +1,8 @@
 import os
 
 from hocr_parser.bbox import BBox
-from hocr_parser.parser import HOCRNode, HOCRParser
+from hocr_parser.parser import HOCRParser
+from hocr_parser.hocr_node import HOCRNode
 
 
 class TestOCRNode:

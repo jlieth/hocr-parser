@@ -1,0 +1,2 @@
+class MalformedOCRException(Exception):
+    pass
