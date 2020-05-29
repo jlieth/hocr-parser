@@ -1,6 +1,6 @@
 import os
 
-from hocr_parser.bbox_wrapper import BBox
+from hocr_parser.bbox import BBox
 from hocr_parser.parser import HOCRNode, HOCRParser
 
 

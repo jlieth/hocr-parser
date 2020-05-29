@@ -4,7 +4,7 @@ import lxml.html
 import lxml.etree
 from lxml.doctestcompare import LHTMLOutputChecker, PARSE_HTML
 
-from .bbox_wrapper import BBox
+from .bbox import BBox
 
 
 class MalformedOCRException(Exception):
