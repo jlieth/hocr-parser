@@ -28,13 +28,13 @@ class TestOCRDocument:
         doc = self.get_parser_for_file("valid_file.hocr")
         assert isinstance(doc.html, HOCRNode)
 
-    def test_root(self):
+    def test_body(self):
         # test hocr file without body tag
-        p = self.get_parser_for_file("parser_test_root_no_body.hocr")
+        p = self.get_parser_for_file("test_body_no_body_tag.hocr")
         assert p.body is None
 
         # test hocr file with body tag
-        p = self.get_parser_for_file("parser_test_root_with_body_tag.hocr")
+        p = self.get_parser_for_file("test_body_with_body_tag.hocr")
         expected = self.get_body_node_from_string("<body><p>Foo</p></body>")
         assert p.body == expected
 
