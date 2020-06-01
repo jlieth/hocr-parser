@@ -31,12 +31,12 @@ class TestOCRDocument:
     def test_root(self):
         # test hocr file without body tag
         p = self.get_parser_for_file("parser_test_root_no_body.hocr")
-        assert p.root is None
+        assert p.body is None
 
         # test hocr file with body tag
         p = self.get_parser_for_file("parser_test_root_with_body_tag.hocr")
         expected = self.get_body_node_from_string("<body><p>Foo</p></body>")
-        assert p.root == expected
+        assert p.body == expected
 
     def test_bbox(self):
         # no bboxes at all

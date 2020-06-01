@@ -14,7 +14,7 @@ class HOCRDocument:
             self.html = HOCRNode.from_string(data)
 
     @property
-    def root(self) -> Optional["HOCRNode"]:
+    def body(self) -> Optional["HOCRNode"]:
         """Returns the body node of the document if available
 
         :return: body element as HOCRNode, or None if no body tag exists
@@ -42,4 +42,4 @@ class HOCRDocument:
 
     def iter(self) -> Iterable["HOCRNode"]:
         """Iterates tree in depth first pre-order"""
-        return self.root.iter()
+        return self.body.iter()
