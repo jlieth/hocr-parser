@@ -22,10 +22,10 @@ class TestOCRDocument:
     def test_init(self):
         # test empty file
         with pytest.raises(EmptyDocumentException):
-            _ = self.get_parser_for_file("empty_file.hocr")
+            _ = self.get_parser_for_file("test_init_empty_file.hocr")
 
         # test valid file
-        doc = self.get_parser_for_file("valid_file.hocr")
+        doc = self.get_parser_for_file("test_init_valid_file.hocr")
         assert isinstance(doc.html, HOCRNode)
 
     def test_body(self):
