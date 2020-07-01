@@ -14,6 +14,14 @@ class HOCRDocument:
             self.html = HOCRNode.from_string(data)
 
     @property
+    def root(self) -> Optional["HOCRNode"]:
+        """Returns the root node of the document if available
+
+        :return: root element as HOCRNode, or None if no body tag exists
+        """
+        return self.html.getroottree().getroot()
+
+    @property
     def body(self) -> Optional["HOCRNode"]:
         """Returns the body node of the document if available
 
