@@ -3,7 +3,7 @@ import os
 import pytest
 
 from hocr_parser.bbox import BBox
-from hocr_parser.exceptions import EmptyDocumentException
+from hocr_parser.exceptions import EmptyDocumentException, MissingRequiredMetaField
 from hocr_parser.hocr_document import HOCRDocument
 from hocr_parser.hocr_node import HOCRNode
 
@@ -37,6 +37,18 @@ class TestOCRDocument:
         p = self.get_parser_for_file("test_body_with_body_tag.hocr")
         expected = self.get_body_node_from_string("<body><p>Foo</p></body>")
         assert p.body == expected
+
+    def test_ocr_system(self):
+        # test hocr file without ocr-system meta tag
+        p = self.get_parser_for_file("document_test_ocr_system_no_meta_tag.hocr")
+
+        with pytest.warns(MissingRequiredMetaField):
+            _ = p.ocr_system
+
+        # with tag
+        p = self.get_parser_for_file("document_test_ocr_system_with_meta_tag.hocr")
+        expected = "tesseract 4.0.0-beta.1"
+        assert p.ocr_system == expected
 
     def test_bbox(self):
         # no bboxes at all

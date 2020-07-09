@@ -1,7 +1,8 @@
 from typing import Iterable, Optional
+import warnings
 
 from .bbox import BBox
-from .exceptions import EmptyDocumentException
+from .exceptions import EmptyDocumentException, MissingRequiredMetaField
 from .hocr_node import HOCRNode
 
 
@@ -30,6 +31,24 @@ class HOCRDocument:
         element = self.html.find("body")
         if element is not None:
             return element
+
+    @property
+    def ocr_system(self) -> Optional[str]:
+        """Searches for the ocr-system meta tag and returns its content.
+
+        From the spec:
+            'ocr-system: Indicates software and version that generated the
+            hOCR document. Every hOCR document must have exactly one
+            ocr-system metadata field'
+        http://kba.cloud/hocr-spec/1.2/#propdef-ocr-system
+
+        :return: The content of the meta tag named ocr-system
+        """
+        try:
+            meta = self.html.cssselect("meta[name='ocr-system']")[0]
+            return meta.get("content")
+        except IndexError:
+            warnings.warn("Missing ocr-system", MissingRequiredMetaField)
 
     @property
     def bbox(self) -> Optional[BBox]:
