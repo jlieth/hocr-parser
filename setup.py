@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
-REQUIREMENTS = ["bbox", "lxml"]
+REQUIREMENTS = ["lxml", "cssselect"]
 
 DEV_REQUIREMENTS = [
     "tox",
