@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Iterable, List, Optional
 import warnings
 
 from .bbox import BBox
@@ -42,6 +42,9 @@ class HOCRDocument:
             ocr-system metadata field'
         http://kba.cloud/hocr-spec/1.2/#propdef-ocr-system
 
+        Example tag:
+        <meta name='ocr-system' content='tesseract 4.0.0-beta.1' />
+
         :return: The content of the meta tag named ocr-system
         """
         try:
@@ -49,6 +52,38 @@ class HOCRDocument:
             return meta.get("content")
         except IndexError:
             warnings.warn("Missing ocr-system", MissingRequiredMetaField)
+
+    @property
+    def ocr_capabilities(self) -> List[str]:
+        """Searches for the ocr-capabilitiesm meta tag and returns its content.
+
+        From the spec:
+            'ocr-capabilities: Features consumers of the hOCR document can
+            expect. See §6.2 Capabilities for possible values.
+            Every hOCR document must have exactly one ocr-capabilities
+            metadata field'
+        http://kba.cloud/hocr-spec/1.2/#propdef-ocr-capabilities
+
+        The capabilities meta field should list the HOCR features present in
+        the document: The HOCR elements used (e.g. ocr_line, ocr_page) and
+        the properties one can expect to encounter in an element's title or
+        other properties (see http://kba.cloud/hocr-spec/1.2/#capabilities).
+
+        Example tag:
+        <meta name='ocr-capabilities' content='ocr_page ocr_line ocrx_word' />
+
+        :return: A list, potentially of length zero, of the capabilities in
+            the content of the meta tag named ocr-system, split at whitespace.
+        """
+        capabilities = []
+
+        try:
+            meta = self.html.cssselect("meta[name='ocr-capabilities']")[0]
+            capabilities = meta.get("content").split()
+        except IndexError:
+            warnings.warn("Missing ocr-capabilities", MissingRequiredMetaField)
+
+        return capabilities
 
     @property
     def bbox(self) -> Optional[BBox]:

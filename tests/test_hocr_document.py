@@ -50,6 +50,19 @@ class TestOCRDocument:
         expected = "tesseract 4.0.0-beta.1"
         assert p.ocr_system == expected
 
+    def test_ocr_capabilities(self):
+        # no meta tag
+        p = self.get_parser_for_file("document_test_ocr_capabilities_no_meta_tag.hocr")
+
+        with pytest.warns(MissingRequiredMetaField):
+            capabilities = p.ocr_capabilities
+
+        assert capabilities == []
+
+        p = self.get_parser_for_file("document_test_ocr_capabilities_with_meta_tag.hocr")
+        expected = ["ocr_page", "ocr_carea", "ocr_par", "ocr_line", "ocrx_word"]
+        assert p.ocr_capabilities == expected
+
     def test_bbox(self):
         # no bboxes at all
         p = self.get_parser_for_file("parser_test_bbox_no_boxes.hocr")
