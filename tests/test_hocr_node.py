@@ -1,4 +1,5 @@
 import math
+import os
 
 import lxml.html
 import lxml.etree
@@ -10,6 +11,14 @@ from hocr_parser.hocr_node import HOCRNode
 
 
 class TestOCRNode:
+    @staticmethod
+    def get_body_node_from_file(filename: str):
+        pwd = os.path.dirname(os.path.abspath(__file__))
+        filepath = os.path.join(pwd, "testdata", filename)
+        with open(filepath, encoding="utf-8") as f:
+            data = f.read().encode("utf-8")
+            return HOCRNode.from_string(data).find("body")
+
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
         return HOCRNode.from_string(s).find("body")
@@ -295,3 +304,15 @@ class TestOCRNode:
         # x_wconf should take precedence over x_confs
         node = self.get_element_node_from_string("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
         assert math.isclose(node.confidence, 80)
+
+    def test_find_pages(self):
+        body = self.get_body_node_from_file("node_test_find_pages.hocr")
+
+        # test node with no page children
+        node1 = body.cssselect("#no_pages")[0]
+        assert node1.pages == []
+
+        # test node with two page children
+        node2 = body.cssselect("#two_pages")[0]
+        expected = [body.cssselect("#page_1")[0], body.cssselect("#page_2")[0]]
+        assert node2.pages == expected

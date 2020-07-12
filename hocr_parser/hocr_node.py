@@ -1,4 +1,4 @@
-from typing import Union, Optional, Iterable, Dict
+from typing import List, Union, Optional, Iterable, Dict
 
 import lxml.etree
 import lxml.html
@@ -247,3 +247,8 @@ class HOCRNode(lxml.html.HtmlElement):
 
             # return average confidence
             return sum(confidences) / len(confidences)
+
+    @property
+    def pages(self) -> List["HOCRNode"]:
+        """Finds and returns all children with the ocr_page class."""
+        return self.find_class("ocr_page")
