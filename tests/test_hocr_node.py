@@ -32,58 +32,41 @@ class TestOCRNode:
 
     def test_equality(self):
         # different type should not be equal
-        s = "<body><span>Test</span></body>"
-        body = self.get_body_node_from_string(s)
-        assert body != s
+        body = self.get_body_node_from_file("node_test_equality.hocr")
+        assert not body == "Foo"
 
-        # same doc should be equal
-        body1 = self.get_body_node_from_string("<body><span>Foo</span></body>")
-        body2 = self.get_body_node_from_string("<body><span>Foo</span></body>")
-        assert body1 == body2
-
-        # different order but same value of attributes should be equal
-        body1 = self.get_body_node_from_string(
-            "<body><span id='word1' class='ocrx_word'>Foo</span></body>"
-        )
-        body2 = self.get_body_node_from_string(
-            "<body><span class='ocrx_word' id='word1'>Foo</span></body>"
-        )
-        assert body1 == body2
+        # same tag should be equal
+        nodes = body.cssselect("#same span")
+        assert nodes[0] == nodes[1]
 
         # repeated space inside tags should equal single space
-        body1 = self.get_body_node_from_string("<body><p>Foo Bar</p></body>")
-        body2 = self.get_body_node_from_string("<body><p>Foo   Bar</p></body>")
-        assert body1 == body2
+        nodes = body.cssselect("#repeated_space span")
+        assert nodes[0] == nodes[1]
 
         # whitespace between tags should be equal to no whitespaces
-        body1 = self.get_body_node_from_string("""
-            <body>
-                <p>Foo</p>  <span>Bar</span>  Baz
-            </body>
-        """)
-        body2 = self.get_body_node_from_string(
-            "<body><p>Foo</p><span>Bar</span>Baz<body>"
-        )
-        assert body1 == body2
+        nodes = body.cssselect("#whitespace_between_tags div")
+        assert nodes[0] == nodes[1]
+
+        # different order but same value of attributes should be equal
+        nodes = body.cssselect("#attr_different_order_same_value span")
+        assert nodes[0] == nodes[1]
 
         # different tags should not be equal
-        body1 = self.get_body_node_from_string("<body><span>Foo</span></body>")
-        body2 = self.get_body_node_from_string("<body><p>Foo</p></body>")
-        assert body1 != body2
+        node1 = body.cssselect("#different_tags span")[0]
+        node2 = body.cssselect("#different_tags p")[0]
+        assert not node1 == node2
 
-        # different text should not be equal
-        body1 = self.get_body_node_from_string("<body><span>Foo</span></body>")
-        body2 = self.get_body_node_from_string("<body><span>Bar</span></body>")
-        assert body1 != body2
+        # different content should not be equal
+        nodes = body.cssselect("#different_content span")
+        assert not nodes[0] == nodes[1]
 
         # different attribute values should not be equal
-        body1 = self.get_body_node_from_string(
-            "<body><span class='ocrx_word'>Foo</span></body>"
-        )
-        body2 = self.get_body_node_from_string(
-            "<body><span class='ocr_line'>Foo</span></body>"
-        )
-        assert body1 != body2
+        nodes = body.cssselect("#different_attr_values span")
+        assert not nodes[0] == nodes[1]
+
+        # node with additional attribute should NOT be equal
+        nodes = body.cssselect("#additional_attrs span")
+        assert not nodes[0] == nodes[1]
 
     def test_parent(self):
         body = self.get_body_node_from_string("<body><p>test</p></body>")

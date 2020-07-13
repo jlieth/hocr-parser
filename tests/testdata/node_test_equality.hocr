@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name='ocr-system' content='tesseract 4.0.0-beta.1' />
+  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par ocr_line ocrx_word'/>
+ </head>
+ <body>
+
+  <!-- equal -->
+  <div id="same">
+   <span>Foo</span>
+   <span>Foo</span>
+  </div>
+
+  <!-- equal -->
+  <div id="repeated_space">
+   <span>Foo Bar</span>
+   <span>Foo     Bar</span>
+  </div>
+
+  <!-- equal -->
+  <div id="whitespace_between_tags">
+   <div><p>Foo</p><span>Bar</span>Baz</div>
+   <div>
+    <p>Foo</p>  <span>Bar</span>  Baz
+   </div>
+  </div>
+
+  <!-- equal -->
+  <div id="attr_different_order_same_value">
+   <span title="bbox 103 165 835 206" class="ocrx_word">Foo</span>
+   <span class="ocrx_word" title="bbox 103 165 835 206">Foo</span>
+  </div>
+
+  <!-- NOT equal -->
+  <div id="different_tags">
+   <span>Foo</span>
+   <p>Foo</p>
+  </div>
+
+  <!-- NOT equal -->
+  <div id="different_content">
+   <span>Foo</span>
+   <span>Bar</span>
+  </div>
+
+  <!-- NOT equal -->
+  <div id="different_attr_values">
+   <span class="ocrx_word">Foo</span>
+   <span class="ocr_line">Foo</span>
+  </div>
+
+  <!-- NOT equal -->
+  <div id="additional_attrs">
+   <span class="ocrx_word">Foo</span>
+   <span class="ocrx_word" title="bbox 103 165 835 206">Foo</span>
+  </div>
+
+ </body>
+</html>
