@@ -252,3 +252,8 @@ class HOCRNode(lxml.html.HtmlElement):
     def pages(self) -> List["HOCRNode"]:
         """Finds and returns all children with the ocr_page class."""
         return self.find_class("ocr_page")
+
+    @property
+    def areas(self) -> List["HOCRNode"]:
+        """Finds and returns all children with the ocr_carea class."""
+        return self.find_class("ocr_carea")

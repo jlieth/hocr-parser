@@ -253,10 +253,28 @@ class TestOCRNode:
         body = self.get_body_node_from_file("node_test_find_pages.hocr")
 
         # test node with no page children
-        node1 = body.cssselect("#no_pages")[0]
-        assert node1.pages == []
+        node = body.cssselect("#no_pages")[0]
+        assert node.pages == []
 
         # test node with two page children
-        node2 = body.cssselect("#two_pages")[0]
+        node = body.cssselect("#two_pages")[0]
         expected = [body.cssselect("#page_1")[0], body.cssselect("#page_2")[0]]
-        assert node2.pages == expected
+        assert node.pages == expected
+
+    def test_find_areas(self):
+        body = self.get_body_node_from_file("node_test_find_areas.hocr")
+
+        # no areas
+        node = body.get_element_by_id("no_areas")
+        assert node.pages == []
+
+        # two areas
+        node = body.get_element_by_id("two_areas")
+        expected = node.cssselect(".expected")
+        assert node.areas == expected
+        assert len(node.areas) == 2
+
+        # whole body (three areas)
+        expected = body.cssselect(".expected")
+        assert body.areas == expected
+        assert len(body.areas) == 3
