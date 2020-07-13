@@ -76,34 +76,27 @@ class TestOCRNode:
         assert p.parent == body
 
     def test_children(self):
-        s = """
-            <body>
-                <div class="ocr_carea">
-                    <span class="ocrx_word">Foo</span>
-                    <span class="non_ocr">Bar</span>
-                    Random text
-                    <span class="ocrx_word">Baz</span> 
-                </div>
-                <!-- comment -->
-                <br>
-                <span class="ocrx_word">Foo</span>
-                Random text
-                <p>
-                    <span class="ocrx_word">Foo</span>
-                    <span class="non_ocr">Bar</span>
-                    Random text
-                    <span class="ocrx_word">Baz</span> 
-                </p>
-                <p>Random text</p>
-                <span class="ocr_line">
-                    <span class="non_ocr">Bar</span>
-                    Random text
-                </span>
-            </body>
-        """
+        body = self.get_body_node_from_file("node_test_children.hocr")
 
-        body = self.get_body_node_from_string(s)
-        assert list(body.children) == list(body.iterchildren())
+        # no children
+        node = body.cssselect("#no_children")[0]
+        assert list(node.children) == []
+
+        # node that only contains text has no children
+        node = body.cssselect("#only_text")[0]
+        assert list(node.children) == []
+
+        # node that only contains a <br>: counts as child
+        node = body.cssselect("#break")[0]
+        assert len(list(node.children)) == 1
+
+        # node that only contains a comment: counts as child
+        node = body.cssselect("#only_comment")[0]
+        assert len(list(node.children)) == 1
+
+        # node with multiple children
+        node = body.cssselect("#multiple_children")[0]
+        assert list(node.children) == node.cssselect(".child")
 
     def test_id(self):
         node = self.get_element_node_from_string("<span id='word1'>Foo</span>")
