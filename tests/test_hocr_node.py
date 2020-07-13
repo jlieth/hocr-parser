@@ -200,56 +200,24 @@ class TestOCRNode:
         assert node.parent_bbox == expected
 
     def test_rel_bbox(self):
+        body = self.get_body_node_from_file("node_test_rel_bbox.hocr")
+
         # no bbox on element
-        s = "<body><div title='bbox 1 5 17 33'><p id='node'>Foo</p></div></body>"
-        body = self.get_body_node_from_string(s)
-        node = body.get_element_by_id("node")
+        node = body.get_element_by_id("no_bbox")
         assert node.rel_bbox is None
 
-        # bbox on element + bbox on direct ancestor
-        s = """
-            <body>
-                <span class="ocr_line" title="bbox 10 20 110 40">
-                    <span class="ocr_word" id="node" title="bbox 43 20 76 40">Foo</span>
-                </span>
-            </body>
-        """
-        body = self.get_body_node_from_string(s)
-        node = body.get_element_by_id("node")
+        # bbox on node + bbox on direct ancestor
+        node = body.get_element_by_id("bbox_on_node_and_direct_ancestor")
         expected = BBox((33, 0, 66, 20))
         assert node.rel_bbox == expected
 
-        # bbox on element + bbox on more distant ancestor
-        s = """
-            <body>
-                <div class="ocr_carea" title="bbox 5 15 115 45">
-                    <span class="ocr_line">
-                        <span class="ocr_word" id="node" title="bbox 43 20 76 40">
-                            Foo
-                        </span>
-                    </span>
-                </div>
-            </body>
-        """
-        body = self.get_body_node_from_string(s)
-        node = body.get_element_by_id("node")
+        # bbox on node + bbox on more distant ancestor
+        node = body.get_element_by_id("bbox_on_node_and_distant_ancestor")
         expected = BBox((38, 5, 71, 25))
         assert node.rel_bbox == expected
 
-        # bbox on element + no bbox on ancestors
-        s = """
-            <body>
-                <div class="ocr_carea">
-                    <span class="ocr_line">
-                        <span class="ocr_word" id="node" title="bbox 43 20 76 40">
-                            Foo
-                        </span>
-                    </span>
-                </div>
-            </body>
-        """
-        body = self.get_body_node_from_string(s)
-        node = body.get_element_by_id("node")
+        # bbox on node + no bbox on ancestors
+        node = body.get_element_by_id("bbox_on_node_and_no_ancestor")
         assert node.rel_bbox == node.bbox
 
     def test_confidences(self):
