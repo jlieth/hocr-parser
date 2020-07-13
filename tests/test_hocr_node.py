@@ -249,15 +249,16 @@ class TestOCRNode:
         node = self.get_element_node_from_string("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
         assert math.isclose(node.confidence, 80)
 
-    def test_finding_typesetting_elements(self):
-        """Tests the typesetting element properties on HOCRNode.
+    def test_finding_elements(self):
+        """Tests the element properties on HOCRNode.
 
         These properties are currently tested:
         - HOCRNode.pages
         - HOCRNode.areas
-        - HOCRNode.line
+        - HOCRNode.lines
+        - HOCRNode.words
         """
-        implemented_elements = ["pages", "areas", "lines"]
+        implemented_elements = ["pages", "areas", "lines", "words"]
 
         for elem in implemented_elements:
             filename = f"node_test_find_{elem}.hocr"
