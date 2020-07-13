@@ -11,16 +11,20 @@
  <body>
 
   <div id="no_pages">
-   <span class='ocrx_word' id='word_1' title='bbox 105 66 178 97; x_wconf 96'>Foo</span>
+   <span class='ocrx_word'>Foo</span>
   </div>
 
   <div id="two_pages">
-   <div class='ocr_page' id='page_1' title='bbox 0 0 1024 800; ppageno 0'>
-    <span class='ocrx_word' id='word_2' title='bbox 105 66 178 97; x_wconf 96'>Foo</span>
+   <div class='ocr_page expected' id='page_1'>
+    <span class='ocrx_word'>Foo</span>
    </div>
-   <div class='ocr_page' id='page_2' title='bbox 0 0 1024 800; ppageno 2'>
-    <span class='ocrx_word' id='word_3' title='bbox 105 66 178 97; x_wconf 96'>Foo</span>
+   <div class='ocr_page expected' id='page_2'>
+    <span class='ocrx_word'>Foo</span>
    </div>
+  </div>
+
+  <div class='ocr_page expected' id='page_3'>
+   <span class='ocrx_word'>Foo</span>
   </div>
 
  </body>

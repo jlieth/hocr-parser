@@ -249,32 +249,34 @@ class TestOCRNode:
         node = self.get_element_node_from_string("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
         assert math.isclose(node.confidence, 80)
 
-    def test_find_pages(self):
-        body = self.get_body_node_from_file("node_test_find_pages.hocr")
+    def test_finding_typesetting_elements(self):
+        """Tests the typesetting element properties on HOCRNode.
 
-        # test node with no page children
-        node = body.cssselect("#no_pages")[0]
-        assert node.pages == []
+        These properties are currently tested:
+        - HOCRNode.pages
+        - HOCRNode.areas
+        """
+        implemented_elements = ["pages", "areas"]
 
-        # test node with two page children
-        node = body.cssselect("#two_pages")[0]
-        expected = [body.cssselect("#page_1")[0], body.cssselect("#page_2")[0]]
-        assert node.pages == expected
+        for elem in implemented_elements:
+            filename = f"node_test_find_{elem}.hocr"
+            body = self.get_body_node_from_file(filename)
 
-    def test_find_areas(self):
-        body = self.get_body_node_from_file("node_test_find_areas.hocr")
+            # no elements of this kind in specified node in test page
+            node_id = f"no_{elem}"
+            node = body.get_element_by_id(node_id)
+            assert getattr(node, elem) == []
 
-        # no areas
-        node = body.get_element_by_id("no_areas")
-        assert node.pages == []
+            # two elements of this kind in specified node in test page
+            node_id = f"two_{elem}"
+            node = body.get_element_by_id(node_id)
+            expected = node.cssselect(".expected")
+            result = getattr(node, elem)
+            assert result == expected
+            assert len(result) == 2
 
-        # two areas
-        node = body.get_element_by_id("two_areas")
-        expected = node.cssselect(".expected")
-        assert node.areas == expected
-        assert len(node.areas) == 2
-
-        # whole body (three areas)
-        expected = body.cssselect(".expected")
-        assert body.areas == expected
-        assert len(body.areas) == 3
+            # there should be three elements of this kind in entire body
+            expected = body.cssselect(".expected")
+            result = getattr(body, elem)
+            assert result == expected
+            assert len(result) == 3
