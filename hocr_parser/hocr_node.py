@@ -14,6 +14,7 @@ class HOCRNode(lxml.html.HtmlElement):
     This class isn't meant to be used by itself. It is utilised by the
     HOCRDocument class to represent the elements of the HTML tree.
     """
+
     HTML = True
 
     @staticmethod
@@ -50,7 +51,7 @@ class HOCRNode(lxml.html.HtmlElement):
         return checker.check_output(
             want=lxml.etree.tostring(self),
             got=lxml.etree.tostring(o),
-            optionflags=PARSE_HTML
+            optionflags=PARSE_HTML,
         )
 
     @property
@@ -185,12 +186,14 @@ class HOCRNode(lxml.html.HtmlElement):
         if parent_bbox is None:
             return self.bbox
 
-        return BBox((
-            self.bbox.x1 - parent_bbox.x1,
-            self.bbox.y1 - parent_bbox.y1,
-            self.bbox.x2 - parent_bbox.x1,
-            self.bbox.y2 - parent_bbox.y1
-        ))
+        return BBox(
+            (
+                self.bbox.x1 - parent_bbox.x1,
+                self.bbox.y1 - parent_bbox.y1,
+                self.bbox.x2 - parent_bbox.x1,
+                self.bbox.y2 - parent_bbox.y1,
+            )
+        )
 
     @property
     def confidence(self) -> Optional[float]:
@@ -233,7 +236,7 @@ class HOCRNode(lxml.html.HtmlElement):
             try:
                 return float(x_wconf)
             except ValueError:
-                raise MalformedOCRException(f"Value of x_wconf must be float")
+                raise MalformedOCRException("Value of x_wconf must be float")
 
         # return averaged x_confs if given
         x_confs = self.ocr_properties.get("x_confs")
@@ -243,7 +246,7 @@ class HOCRNode(lxml.html.HtmlElement):
             try:
                 confidences = [float(x) for x in values]
             except ValueError:
-                raise MalformedOCRException(f"Values of x_confs must be float")
+                raise MalformedOCRException("Values of x_confs must be float")
 
             # return average confidence
             return sum(confidences) / len(confidences)
