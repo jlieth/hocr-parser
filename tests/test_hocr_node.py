@@ -255,10 +255,11 @@ class TestOCRNode:
         These properties are currently tested:
         - HOCRNode.pages
         - HOCRNode.areas
+        - HOCRNode.paragraphs
         - HOCRNode.lines
         - HOCRNode.words
         """
-        implemented_elements = ["pages", "areas", "lines", "words"]
+        implemented_elements = ["pages", "areas", "paragraphs", "lines", "words"]
 
         for elem in implemented_elements:
             filename = f"node_test_find_{elem}.hocr"
