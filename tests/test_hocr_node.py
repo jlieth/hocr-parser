@@ -145,22 +145,24 @@ class TestOCRNode:
             _ = node.ocr_properties
 
     def test_bbox(self):
+        body = self.get_body_node_from_file("node_test_bbox.hocr")
+
         # no bbox given
-        node = self.get_element_node_from_string("<p>Foo</p>")
+        node = body.get_element_by_id("no_bbox")
         assert node.bbox is None
 
         # wrong number of coordinates
-        node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
+        node = body.get_element_by_id("wrong_number_of_coordinates")
         with pytest.raises(MalformedOCRException):
             _ = node.bbox
 
-        # not ints
-        node = self.get_element_node_from_string("<p title='bbox a b c d'>Foo</p>")
+        # coordinates aren't ints
+        node = body.get_element_by_id("coordinates_not_ints")
         with pytest.raises(MalformedOCRException):
             _ = node.bbox
 
-        # all fine
-        node = self.get_element_node_from_string("<p title='bbox 103 215 194 247'>Foo</p>")
+        # valid bbox
+        node = body.get_element_by_id("valid_bbox")
         assert node.bbox == BBox((103, 215, 194, 247))
 
     def test_parent_bbox(self):
@@ -221,32 +223,34 @@ class TestOCRNode:
         assert node.rel_bbox == node.bbox
 
     def test_confidences(self):
+        body = self.get_body_node_from_file("node_test_confidence.hocr")
+
         # no confidence property given should return None
-        node = self.get_element_node_from_string("<p title='bbox 103 215 194'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("no_confidence")
         assert node.confidence is None
 
         # x_wconf given should return its value (as float)
-        node = self.get_element_node_from_string("<p title='x_wconf 80'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("x_wconf_given")
         assert type(node.confidence) == float
         assert math.isclose(node.confidence, 80)
 
         # malformed x_wconf should raise MalformedOCRException
-        node = self.get_element_node_from_string("<p title='x_wconf eighty'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("malformed_x_wconf")
         with pytest.raises(MalformedOCRException):
             _ = node.confidence
 
         # x_confs given should result in average of its values
-        node = self.get_element_node_from_string("<p title='x_confs 20 7 90'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("x_confs_given")
         assert type(node.confidence) == float
         assert math.isclose(node.confidence, 39)
 
         # malformed x_confs should raise MalformedOCRException
-        node = self.get_element_node_from_string("<p title='x_confs a b c'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("malformed_x_confs")
         with pytest.raises(MalformedOCRException):
             _ = node.confidence
 
         # x_wconf should take precedence over x_confs
-        node = self.get_element_node_from_string("<p title='x_wconf 80; x_confs 20 5 90'>Foo</p>")
+        node: HOCRNode = body.get_element_by_id("x_wconf_and_x_confs")
         assert math.isclose(node.confidence, 80)
 
     def test_finding_elements(self):

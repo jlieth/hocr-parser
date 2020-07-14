@@ -52,14 +52,14 @@ class TestOCRDocument:
 
     def test_ocr_capabilities(self):
         # no meta tag
-        p = self.get_parser_for_file("document_test_ocr_capabilities_no_meta_tag.hocr")
+        p = self.get_parser_for_file("document_test_ocr_capabilities_no_tag.hocr")
 
         with pytest.warns(MissingRequiredMetaField):
             capabilities = p.ocr_capabilities
 
         assert capabilities == []
 
-        p = self.get_parser_for_file("document_test_ocr_capabilities_with_meta_tag.hocr")
+        p = self.get_parser_for_file("document_test_ocr_capabilities_with_tag.hocr")
         expected = ["ocr_page", "ocr_carea", "ocr_par", "ocr_line", "ocrx_word"]
         assert p.ocr_capabilities == expected
 
