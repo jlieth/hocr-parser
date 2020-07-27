@@ -302,6 +302,7 @@ class TestOCRNode:
             {"id": "nested", "expected": "Foo bar Baz.\nBaz. bar Foo"},
             {"id": "empty_child", "expected": "foo"},
             {"id": "inline_text", "expected": "bar foo bar foo bar"},
+            {"id": "child_without_ocr_class", "expected": "foo\nbar foo"},
         ]
 
         for case in test_cases:

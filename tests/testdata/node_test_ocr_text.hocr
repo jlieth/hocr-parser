@@ -77,5 +77,11 @@
             bar
         </div>
 
+        <div id="child_without_ocr_class">
+            <span class="ocrx_word">foo</span>
+            <span>bar</span>
+            <span class="ocrx_word">foo</span>
+        </div>
+
     </body>
 </html>

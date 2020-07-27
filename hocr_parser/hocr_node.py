@@ -22,6 +22,7 @@ class HOCRNode(lxml.html.HtmlElement):
         "ocr_par": "\n ",
         "ocr_carea": "\n\n",
         "ocr_page": "\n\n",
+        "default": "\n",
     }
 
     @staticmethod
@@ -295,12 +296,8 @@ class HOCRNode(lxml.html.HtmlElement):
 
         for child in self.children:
             child_text = child.ocr_text
-
-            # define separator
-            if child.ocr_class is None:
-                separator = "\n"
-            else:
-                separator = self.OCR_TEXT_SEPARATORS.get(child.ocr_class, "\n")
+            ocr_class = child.ocr_class or "default"
+            separator = self.OCR_TEXT_SEPARATORS.get(ocr_class, "\n")
 
             # append child text only if it is not empty
             if not child_text == "":
