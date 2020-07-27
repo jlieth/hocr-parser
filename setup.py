@@ -7,10 +7,12 @@ REQUIREMENTS = ["lxml", "cssselect"]
 DEV_REQUIREMENTS = [
     "tox",
     "pytest",
-    "pytest-cov",
     "pytest-random-order",
-    "flake8",
-    "black"
+    "pytest-mypy",
+    "pytest-flake8",
+    "pytest-black",
+    "pytest-cov",
+    "lxml-stubs",
 ]
 
 setup(
