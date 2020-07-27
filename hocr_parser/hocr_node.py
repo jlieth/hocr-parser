@@ -16,6 +16,13 @@ class HOCRNode(lxml.html.HtmlElement):
     """
 
     HTML = True
+    OCR_TEXT_SEPARATORS = {
+        "ocrx_word": " ",
+        "ocr_line": "\n",
+        "ocr_par": "\n ",
+        "ocr_carea": "\n\n",
+        "ocr_page": "\n\n",
+    }
 
     @staticmethod
     def from_string(s: Union[str, bytes]) -> "HOCRNode":
@@ -275,3 +282,24 @@ class HOCRNode(lxml.html.HtmlElement):
     def words(self) -> List["HOCRNode"]:
         """Finds and returns all children with the ocrx_word class."""
         return self.find_class("ocrx_word")
+
+    @property
+    def ocr_text(self) -> str:
+        """Returns the text content of this node and all its children."""
+        # get the text of this node before the start of any possible children
+        text = (self.text or "").strip()
+
+        for child in self.children:
+            child_text = child.ocr_text
+            separator = self.OCR_TEXT_SEPARATORS.get(child.ocr_class, "\n")
+
+            # append child text only if it is not empty
+            if not child_text == "":
+                text = text + separator + child_text
+
+            # append any text after the end tag of the current child
+            tail = (child.tail or "").strip()
+            if tail:
+                text = text + separator + tail
+
+        return text.strip()

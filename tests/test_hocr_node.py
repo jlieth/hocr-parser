@@ -287,3 +287,24 @@ class TestOCRNode:
             result = getattr(body, elem)
             assert result == expected
             assert len(result) == 3
+
+    def test_ocr_text(self):
+        body = self.get_body_node_from_file("node_test_ocr_text.hocr")
+
+        test_cases = [
+            {"id": "words", "expected": "Foo bar Baz."},
+            {"id": "lines", "expected": "Foo\nbar\nBaz."},
+            {"id": "paragraphs", "expected": "Foo\n bar\n Baz."},
+            {"id": "areas", "expected": "Foo\n\nbar\n\nBaz."},
+            {"id": "pages", "expected": "Foo\n\nbar\n\nBaz."},
+            {"id": "mix", "expected": "foo foo\n\nfoo\nfoo\n\nfoo\n foo"},
+            {"id": "no_whitespace", "expected": "Foo bar"},
+            {"id": "nested", "expected": "Foo bar Baz.\nBaz. bar Foo"},
+            {"id": "empty_child", "expected": "foo"},
+            {"id": "inline_text", "expected": "bar foo bar foo bar"},
+        ]
+
+        for case in test_cases:
+            print(case["id"])
+            node = body.get_element_by_id(case["id"])
+            assert node.ocr_text == case["expected"]

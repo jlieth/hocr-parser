@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <meta name="ocr-system" content="handmade" />
+        <meta name="ocr-capabilities" content="ocr_page ocr_carea ocr_par ocr_line ocrx_word"/>
+    </head>
+    <body>
+
+        <div id="words">
+            <span class="ocrx_word">Foo</span>
+            <span class="ocrx_word">bar</span>
+            <span class="ocrx_word">Baz.</span>
+        </div>
+
+        <div id="lines">
+            <span class="ocr_line">Foo</span>
+            <span class="ocr_line">bar</span>
+            <span class="ocr_line">Baz.</span>
+        </div>
+
+        <div id="paragraphs">
+            <span class="ocr_par">Foo</span>
+            <span class="ocr_par">bar</span>
+            <span class="ocr_par">Baz.</span>
+        </div>
+
+        <div id="areas">
+            <span class="ocr_carea">Foo</span>
+            <span class="ocr_carea">bar</span>
+            <span class="ocr_carea">Baz.</span>
+        </div>
+
+        <div id="pages">
+            <span class="ocr_page">Foo</span>
+            <span class="ocr_page">bar</span>
+            <span class="ocr_page">Baz.</span>
+        </div>
+
+        <div id="mix">
+            <span class="ocrx_word">foo</span>
+            <span class="ocrx_word">foo</span>
+            <span class="ocr_page">foo</span>
+            <span class="ocr_line">foo</span>
+            <span class="ocr_carea">foo</span>
+            <span class="ocr_par">foo</span>
+        </div>
+
+        <div id="no_whitespace"><span class="ocrx_word">Foo</span><span class="ocrx_word">bar</span></div>
+
+        <div id="nested">
+            <span class="ocr_line">
+                <span class="ocrx_word">Foo</span>
+                <span class="ocrx_word">bar</span>
+                <span class="ocrx_word">Baz.</span>
+            </span>
+            <span class="ocr_line">
+                <span class="ocrx_word">Baz.</span>
+                <span class="ocrx_word">bar</span>
+                <span class="ocrx_word">Foo</span>
+            </span>
+        </div>
+
+        <div id="empty_child">
+            <span class="ocrx_word">foo</span>
+            <span class="ocrx_word"></span>
+        </div>
+
+        <div id="inline_text">
+            bar
+            <span class="ocrx_word">foo</span>
+            bar
+            <span class="ocrx_word">foo</span>
+            bar
+        </div>
+
+    </body>
+</html>
