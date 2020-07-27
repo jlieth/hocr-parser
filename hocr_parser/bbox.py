@@ -48,10 +48,10 @@ class BBox:
             return False
 
         return (
-            self.x1 == other.x1
-            and self.y1 == other.y1
-            and self.x2 == other.x2
-            and self.y2 == other.y2
+            self.x1 == getattr(other, "x1")
+            and self.y1 == getattr(other, "y1")
+            and self.x2 == getattr(other, "x2")
+            and self.y2 == getattr(other, "y2")
         )
 
     @property
@@ -73,7 +73,7 @@ class BBox:
         :return: BBox, or None if the input list is empty
         """
         if len(boxes) == 0:
-            return
+            return None
 
         # looking for smallest x1, y1 and largest x2, y2
         x1 = min([b.x1 for b in boxes])

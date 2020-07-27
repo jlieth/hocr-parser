@@ -51,7 +51,7 @@ class HOCRNode(lxml.html.HtmlElement):
         - Repeated spaces inside a tag
         - Whitespace between tags
         """
-        if not type(self) == type(o):
+        if not isinstance(o, HOCRNode):
             return False
 
         checker = LHTMLOutputChecker()
@@ -96,7 +96,7 @@ class HOCRNode(lxml.html.HtmlElement):
 
     @property
     def ocr_properties(self) -> Dict[str, str]:
-        d = {}
+        d: Dict = {}
 
         title = self.get("title", "")
         if title == "":
@@ -164,6 +164,8 @@ class HOCRNode(lxml.html.HtmlElement):
                 return parent.bbox
             else:
                 parent = parent.parent
+
+        return None
 
     @property
     def rel_bbox(self) -> Optional[BBox]:
@@ -258,6 +260,8 @@ class HOCRNode(lxml.html.HtmlElement):
             # return average confidence
             return sum(confidences) / len(confidences)
 
+        return None
+
     @property
     def pages(self) -> List["HOCRNode"]:
         """Finds and returns all children with the ocr_page class."""
@@ -291,7 +295,12 @@ class HOCRNode(lxml.html.HtmlElement):
 
         for child in self.children:
             child_text = child.ocr_text
-            separator = self.OCR_TEXT_SEPARATORS.get(child.ocr_class, "\n")
+
+            # define separator
+            if child.ocr_class is None:
+                separator = "\n"
+            else:
+                separator = self.OCR_TEXT_SEPARATORS.get(child.ocr_class, "\n")
 
             # append child text only if it is not empty
             if not child_text == "":

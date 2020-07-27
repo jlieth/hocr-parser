@@ -28,9 +28,7 @@ class HOCRDocument:
 
         :return: body element as HOCRNode, or None if no body tag exists
         """
-        element = self.html.find("body")
-        if element is not None:
-            return element
+        return self.html.find("body")
 
     @property
     def ocr_system(self) -> Optional[str]:
@@ -52,6 +50,7 @@ class HOCRDocument:
             return meta.get("content")
         except IndexError:
             warnings.warn("Missing ocr-system", MissingRequiredMetaField)
+            return None
 
     @property
     def ocr_capabilities(self) -> List[str]:
@@ -98,10 +97,13 @@ class HOCRDocument:
         for node in self.iter():
             box = node.bbox
             if box:
-                boxes.append(node.bbox)
+                boxes.append(box)
 
         return BBox.max_bbox(boxes)
 
     def iter(self) -> Iterable["HOCRNode"]:
         """Iterates tree in depth first pre-order"""
-        return self.body.iter()
+        if self.body is None:
+            return []
+        else:
+            return self.body.iter()
