@@ -5,7 +5,7 @@ import lxml.html
 from lxml.doctestcompare import LHTMLOutputChecker, PARSE_HTML
 
 from .bbox import BBox
-from .exceptions import MalformedOCRException
+from .exceptions import EmptyDocumentException, MalformedOCRException
 
 
 class HOCRNode(lxml.html.HtmlElement):
@@ -27,10 +27,13 @@ class HOCRNode(lxml.html.HtmlElement):
 
     @staticmethod
     def from_string(s: Union[str, bytes]) -> "HOCRNode":
+        if len(s) == 0:
+            raise EmptyDocumentException("document string is empty")
+
         lookup = lxml.etree.ElementDefaultClassLookup(element=HOCRNode)
         parser = lxml.etree.HTMLParser(encoding="utf-8")
         parser.set_element_class_lookup(lookup)
-        return lxml.html.document_fromstring(s, parser=parser)
+        return lxml.html.fromstring(s, parser=parser)
 
     def __eq__(self, o: object) -> bool:
         """Compares the HOCRNode to another object

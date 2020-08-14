@@ -6,7 +6,7 @@ import lxml.etree
 import pytest
 
 from hocr_parser.bbox import BBox
-from hocr_parser.exceptions import MalformedOCRException
+from hocr_parser.exceptions import EmptyDocumentException, MalformedOCRException
 from hocr_parser.hocr_node import HOCRNode
 
 
@@ -29,6 +29,13 @@ class TestOCRNode:
         parser = lxml.etree.HTMLParser(encoding="utf-8")
         parser.set_element_class_lookup(lookup)
         return lxml.html.fragment_fromstring(s, parser=parser)
+
+    def test_from_string(self):
+        # test empty string
+        with pytest.raises(EmptyDocumentException):
+            HOCRNode.from_string("")
+
+        # text w
 
     def test_equality(self):
         # different type should not be equal
@@ -69,7 +76,7 @@ class TestOCRNode:
         assert not nodes[0] == nodes[1]
 
     def test_parent(self):
-        body = self.get_body_node_from_string("<body><p>test</p></body>")
+        body = self.get_body_node_from_string("<html><body><p>test</p></body></html>")
         p = body.find("p")
 
         # p node should return body node as parent
@@ -172,13 +179,13 @@ class TestOCRNode:
         assert html.parent_bbox is None
 
         # parent has no bbox
-        s = "<body><div><p id='node'>Foo</p></div></body>"
+        s = "<html><body><div><p id='node'>Foo</p></div></body></html>"
         body = self.get_body_node_from_string(s)
         node = body.get_element_by_id("node")
         assert node.parent_bbox is None
 
         # direct parent has bbox
-        s = "<body><div title='bbox 1 5 17 33'><p id='node'>Foo</p></div></body>"
+        s = "<html><body><div title='bbox 1 5 17 33'><p id='node'>Foo</p></div></body></html>"
         body = self.get_body_node_from_string(s)
         node = body.get_element_by_id("node")
         expected = BBox((1, 5, 17, 33))
@@ -186,6 +193,7 @@ class TestOCRNode:
 
         # more distant ancestor has bbox
         s = """
+            <html>
             <body>
                 <div title='bbox 1 5 17 33'>
                     <div>
@@ -195,6 +203,7 @@ class TestOCRNode:
                     </div>
                 </div>
             </body>
+            </html>
         """
         body = self.get_body_node_from_string(s)
         node = body.get_element_by_id("node")
