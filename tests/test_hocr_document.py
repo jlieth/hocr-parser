@@ -35,7 +35,9 @@ class TestOCRDocument:
 
         # test hocr file with body tag
         doc = self.get_document("document_test_body_with_body_tag.hocr")
-        expected = self.get_body_node_from_string("<html><body><p>Foo</p></body></html>")
+        expected = self.get_body_node_from_string(
+            "<html><body><p>Foo</p></body></html>"
+        )
         assert doc.body == expected
 
     def test_ocr_system(self):
