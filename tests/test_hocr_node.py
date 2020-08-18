@@ -16,12 +16,12 @@ class TestOCRNode:
         pwd = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(pwd, "testdata", filename)
         with open(filepath, encoding="utf-8") as f:
-            data = f.read().encode("utf-8")
-            return HOCRNode.from_string(data).find("body")
+            data = f.read()
+            return HOCRNode.fromstring(data).find("body")
 
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
-        return HOCRNode.from_string(s).find("body")
+        return HOCRNode.fromstring(s).find("body")
 
     @staticmethod
     def get_element_node_from_string(s: str) -> HOCRNode:
@@ -30,12 +30,89 @@ class TestOCRNode:
         parser.set_element_class_lookup(lookup)
         return lxml.html.fragment_fromstring(s, parser=parser)
 
-    def test_from_string(self):
+    def test_fromstring_structure(self):
         # test empty string
         with pytest.raises(EmptyDocumentException):
-            HOCRNode.from_string("")
+            HOCRNode.fromstring("")
 
-        # text w
+        # NO BODY TAG
+        # text only (no tags) gets wrapped in p
+        node = HOCRNode.fromstring("foobar")
+        expected = "<p>foobar</p>"
+        assert node.tostring() == expected
+
+        # multiple tags get wrapped in div
+        node = HOCRNode.fromstring("<p>foo</p><span>bar</span><p>baz</p>")
+        expected = "<div><p>foo</p><span>bar</span><p>baz</p></div>"
+        assert node.tostring() == expected
+
+        # leading text + tag: text gets wrapped in p; everything wrapped in div
+        node = HOCRNode.fromstring("foo<p>bar</p>")
+        expected = "<div><p>foo</p><p>bar</p></div>"
+        assert node.tostring() == expected
+
+        # tag + trailing text: text NOT wrapped; everything wrapped in div
+        node = HOCRNode.fromstring("<p>foo</p>bar")
+        expected = "<div><p>foo</p>bar</div>"
+        assert node.tostring() == expected
+
+        # tags + text inbetween: text NOT wrapped; everything wrapped in div
+        node = HOCRNode.fromstring("<p>foo</p>bar<p>baz</p>")
+        expected = "<div><p>foo</p>bar<p>baz</p></div>"
+        assert node.tostring() == expected
+
+        # OUTER TAG IS BODY TAG: body tag is always stripped
+        # body tag with text inside: tag wrapped in span
+        node = HOCRNode.fromstring("<body>foo</body>")
+        expected = "<span>foo</span>"
+        assert node.tostring() == expected
+
+        # body tag with one tag inside: only tag left
+        node = HOCRNode.fromstring("<body><p>foo</p></body>")
+        expected = "<p>foo</p>"
+        assert node.tostring() == expected
+
+        # body tag with multiple tags: tag wrapped in div
+        node = HOCRNode.fromstring("<body><p>foo</p><span>bar</span></body>")
+        expected = "<div><p>foo</p><span>bar</span></div>"
+        assert node.tostring() == expected
+
+        # body tag with a mixture of tags and text:
+        # text is NOT wrapped; everything wrapped in div
+        # - leading text
+        node = HOCRNode.fromstring("<body>foo<p>bar</p></body>")
+        expected = "<div>foo<p>bar</p></div>"
+        assert node.tostring() == expected
+
+        # - trailing text
+        node = HOCRNode.fromstring("<body><p>foo</p>bar</body>")
+        expected = "<div><p>foo</p>bar</div>"
+        assert node.tostring() == expected
+
+        # - text in the middle
+        node = HOCRNode.fromstring("<body><p>foo</p>bar<p>baz</p></body>")
+        expected = "<div><p>foo</p>bar<p>baz</p></div>"
+        assert node.tostring() == expected
+
+    def test_fromstring_encoding(self):
+        # test ascii encoding
+        node = HOCRNode.fromstring("foobar", encoding="ascii")
+        assert node.ocr_text == "foobar"
+        assert node.getroottree().docinfo.encoding == "ascii"
+
+        # test ascii with non-ascii chars
+        with pytest.raises(UnicodeEncodeError):
+            HOCRNode.fromstring("fööbär", encoding="ascii")
+
+        # test not giving encoding. should default to utf-8
+        node = HOCRNode.fromstring("日本語")
+        assert node.ocr_text == "日本語"
+        assert node.getroottree().docinfo.encoding == "utf-8"
+
+        # test different encoding
+        node = HOCRNode.fromstring("日本語", encoding="utf-16le")
+        assert node.ocr_text == "日本語"
+        assert node.getroottree().docinfo.encoding == "utf-16le"
 
     def test_equality(self):
         # different type should not be equal
@@ -74,6 +151,18 @@ class TestOCRNode:
         # node with additional attribute should NOT be equal
         nodes = body.cssselect("#additional_attrs span")
         assert not nodes[0] == nodes[1]
+
+    def test_tostring(self, mocker):
+        # make sure lxml.etree.tostring gets called
+        node = HOCRNode.fromstring("foobar")
+        mocker.patch("lxml.etree.tostring", return_value="<p>foobar</p>")
+        node.tostring()
+        lxml.etree.tostring.assert_called_with(node, encoding=str)
+        mocker.stopall()
+
+        # test different encoding
+        node = HOCRNode.fromstring("<p>foo</p>", encoding="utf-16le")
+        assert node.tostring() == "<p>foo</p>"
 
     def test_parent(self):
         body = self.get_body_node_from_string("<html><body><p>test</p></body></html>")

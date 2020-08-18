@@ -17,7 +17,7 @@ class TestOCRDocument:
 
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
-        return HOCRNode.from_string(s).find("body")
+        return HOCRNode.fromstring(s).find("body")
 
     def test_init(self):
         # test empty file

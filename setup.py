@@ -7,6 +7,7 @@ REQUIREMENTS = ["lxml", "cssselect"]
 DEV_REQUIREMENTS = [
     "tox",
     "pytest",
+    "pytest-mock",
     "pytest-random-order",
     "pytest-mypy",
     "pytest-flake8",
