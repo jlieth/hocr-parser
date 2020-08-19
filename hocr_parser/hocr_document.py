@@ -2,17 +2,30 @@ from typing import Iterable, List, Optional
 import warnings
 
 from .bbox import BBox
-from .exceptions import EmptyDocumentException, MissingRequiredMetaField
+from .exceptions import EncodingError, EmptyDocumentException, MissingRequiredMetaField
 from .hocr_node import HOCRNode
 
 
 class HOCRDocument:
-    def __init__(self, filename: str):
-        with open(filename) as f:
-            data = f.read()
-            if len(data) == 0:
-                raise EmptyDocumentException("Document is empty")
-            self.html = HOCRNode.fromstring(data)
+    def __init__(self, filename: str, encoding: str = "utf-8"):
+        # try to open the file with the given encoding
+        data = self._read_file(filename, encoding)
+
+        # if no data was read, the document is empty
+        if len(data) == 0:
+            raise EmptyDocumentException("Document is empty")
+
+        # parse document to node
+        self.html = HOCRNode.fromstring(data)
+
+    @staticmethod
+    def _read_file(filename: str, encoding: str) -> str:
+        try:
+            with open(filename, encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            msg = f"Couldn't open file {filename} with encoding {encoding}."
+            raise EncodingError(msg)
 
     @property
     def root(self) -> Optional["HOCRNode"]:
