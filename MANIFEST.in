@@ -1,4 +1,4 @@
 recursive-include hocr_parser *.py
 recursive-include tests *.py *.hocr
-include *.py *.md *.txt
-include MANIFEST.in LICENSE tox.ini
+include *.py *.cfg *.ini *.md *.txt
+include MANIFEST.in LICENSE
