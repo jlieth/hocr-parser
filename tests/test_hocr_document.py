@@ -1,24 +1,17 @@
-import os
-
 import pytest
 
 from hocr_parser.bbox import BBox
-from hocr_parser.exceptions import EmptyDocumentException, EncodingError, MissingRequiredMetaField
-from hocr_parser.hocr_document import HOCRDocument
 from hocr_parser.hocr_node import HOCRNode
+from hocr_parser.exceptions import (
+    EmptyDocumentException,
+    EncodingError,
+    MissingRequiredMetaField,
+)
+
+from .base import BaseTestClass
 
 
-class TestOCRDocument:
-    @staticmethod
-    def get_document(filename: str, encoding: str = "utf-8") -> HOCRDocument:
-        pwd = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(pwd, "testdata", filename)
-        return HOCRDocument(filepath, encoding=encoding)
-
-    @staticmethod
-    def get_body_node_from_string(s: str) -> HOCRNode:
-        return HOCRNode.fromstring(s).find("body")
-
+class TestOCRDocument(BaseTestClass):
     def test_init(self):
         # test empty file
         with pytest.raises(EmptyDocumentException):
@@ -31,7 +24,8 @@ class TestOCRDocument:
     def test_read_file(self):
         # test wrong encoding
         with pytest.raises(EncodingError):
-            doc = self.get_document("document_test_file_encodings_utf16le.hocr", encoding="utf-8")
+            filename = "document_test_file_encodings_utf16le.hocr"
+            _ = self.get_document(filename, encoding="utf-8")
 
     def test_file_encodings(self):
         # utf-8
@@ -40,7 +34,8 @@ class TestOCRDocument:
         assert doc.html.getroottree().docinfo.encoding == "utf-8"
 
         # utf-16-le
-        doc = self.get_document("document_test_file_encodings_utf16le.hocr", encoding="utf-16-le")
+        filename = "document_test_file_encodings_utf16le.hocr"
+        doc = self.get_document(filename, encoding="utf-16-le")
         assert doc.body.ocr_text == "fööbär"
 
     def test_body(self):
@@ -50,9 +45,7 @@ class TestOCRDocument:
 
         # test hocr file with body tag
         doc = self.get_document("document_test_body_with_body_tag.hocr")
-        expected = self.get_body_node_from_string(
-            "<html><body><p>Foo</p></body></html>"
-        )
+        expected = self.get_body_from_string("<html><body><p>Foo</p></body></html>")
         assert doc.body == expected
 
     def test_ocr_system(self):
