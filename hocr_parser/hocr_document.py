@@ -8,6 +8,15 @@ from .hocr_node import HOCRNode
 
 class HOCRDocument:
     def __init__(self, filename: str, encoding: str = "utf-8"):
+        """Creates a new HOCRDocument instance from the HOCR file `filename`
+
+        :param filename: Filename of the input HOCR document
+        :param encoding: (optional) Encoding to be for the document.
+            Default is utf-8.
+        :raises EncodingError: When opening the file with the given encoding
+            raises a UnicodeDecodeError.
+        :raises EmptyDocumentException: When the given file is empty
+        """
         # try to open the file with the given encoding
         data = self._read_file(filename, encoding)
 
@@ -16,7 +25,7 @@ class HOCRDocument:
             raise EmptyDocumentException("Document is empty")
 
         # parse document to node
-        self.html = HOCRNode.fromstring(data)
+        self.html = HOCRNode.fromstring(data, encoding=encoding)
 
     @staticmethod
     def _read_file(filename: str, encoding: str) -> str:

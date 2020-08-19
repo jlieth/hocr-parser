@@ -21,10 +21,17 @@ class TestOCRDocument(BaseTestClass):
         doc = self.get_document("document_test_init_valid_file.hocr")
         assert isinstance(doc.html, HOCRNode)
 
+        # test different encoding
+        filename = "document_test_file_encodings_utf16le.hocr"
+        doc = self.get_document(filename, encoding="utf-16le")
+        assert doc.body.ocr_text == "fööbär"
+        assert doc.html.getroottree().docinfo.encoding == "utf-16le"
+
     def test_read_file(self):
+        filename = "document_test_file_encodings_utf16le.hocr"
+
         # test wrong encoding
         with pytest.raises(EncodingError):
-            filename = "document_test_file_encodings_utf16le.hocr"
             _ = self.get_document(filename, encoding="utf-8")
 
     def test_file_encodings(self):
@@ -35,7 +42,7 @@ class TestOCRDocument(BaseTestClass):
 
         # utf-16-le
         filename = "document_test_file_encodings_utf16le.hocr"
-        doc = self.get_document(filename, encoding="utf-16-le")
+        doc = self.get_document(filename, encoding="utf-16le")
         assert doc.body.ocr_text == "fööbär"
 
     def test_body(self):

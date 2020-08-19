@@ -26,7 +26,7 @@ class HOCRNode(lxml.html.HtmlElement):
     }
 
     @staticmethod
-    def fromstring(s: str, encoding="utf-8") -> "HOCRNode":
+    def fromstring(s: str, encoding: str = "utf-8") -> "HOCRNode":
         """Parses the input HTMl string to a HOCRNode object
 
         Uses lxml.html.fromstring to parse the string to nodes. Note that the
@@ -60,6 +60,7 @@ class HOCRNode(lxml.html.HtmlElement):
         encoding. By explicitly giving lxml an encoding, it will not try to
         use the declared encoding of the document but the one given to the
         parser.
+
         The default value for encoding is utf-8. You probably should use utf-8
         in almost all cases. Giving an encoding that is unable to encode all
         chars in the input string will raise a UnicodeEncodeError.
@@ -68,6 +69,14 @@ class HOCRNode(lxml.html.HtmlElement):
         [...]
         UnicodeEncodeError: 'ascii' codec can't encode characters in position
         1-2: ordinal not in range(128)
+
+        Possible values for encoding are all encodings supported by iconv.
+        To see the available encodings on your system, execute
+        `iconv -l`
+        in a terminal. The names and aliases for the encodings differ somewhat
+        from Python's encoding names, e.g. UTF-16 little endian can be given
+        in Python as utf-16-le, but in iconv only utf16le and utf-16le
+        are valid.
 
         :param s: HTML string to parse
         :param encoding: (Optional) Encoding that should be used for the
