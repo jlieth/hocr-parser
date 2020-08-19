@@ -3,17 +3,17 @@ import os
 import pytest
 
 from hocr_parser.bbox import BBox
-from hocr_parser.exceptions import EmptyDocumentException, MissingRequiredMetaField
+from hocr_parser.exceptions import EmptyDocumentException, EncodingError, MissingRequiredMetaField
 from hocr_parser.hocr_document import HOCRDocument
 from hocr_parser.hocr_node import HOCRNode
 
 
 class TestOCRDocument:
     @staticmethod
-    def get_document(filename: str) -> HOCRDocument:
+    def get_document(filename: str, encoding: str = "utf-8") -> HOCRDocument:
         pwd = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(pwd, "testdata", filename)
-        return HOCRDocument(filepath)
+        return HOCRDocument(filepath, encoding=encoding)
 
     @staticmethod
     def get_body_node_from_string(s: str) -> HOCRNode:
@@ -27,6 +27,21 @@ class TestOCRDocument:
         # test valid file
         doc = self.get_document("document_test_init_valid_file.hocr")
         assert isinstance(doc.html, HOCRNode)
+
+    def test_read_file(self):
+        # test wrong encoding
+        with pytest.raises(EncodingError):
+            doc = self.get_document("document_test_file_encodings_utf16le.hocr", encoding="utf-8")
+
+    def test_file_encodings(self):
+        # utf-8
+        doc = self.get_document("document_test_file_encodings_utf8.hocr")
+        assert doc.body.ocr_text == "fööbär"
+        assert doc.html.getroottree().docinfo.encoding == "utf-8"
+
+        # utf-16-le
+        doc = self.get_document("document_test_file_encodings_utf16le.hocr", encoding="utf-16-le")
+        assert doc.body.ocr_text == "fööbär"
 
     def test_body(self):
         # test hocr file without body tag
