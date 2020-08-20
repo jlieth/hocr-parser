@@ -1,0 +1,4 @@
+-e .
+sphinx
+m2r2
+git+https://github.com/guzzle/guzzle_sphinx_theme
