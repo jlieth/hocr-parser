@@ -16,6 +16,7 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'guzzle_sphinx_theme',
@@ -61,6 +62,16 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+
+autodoc_default_options = {
+    'member-order': 'bysource',
+    'special-members': '__init__',
+}
+
+autodoc_default_flags = [
+    'undoc-members',
+    'show-inheritance'
+]
 
 # -- Options for HTML output ----------------------------------------------
 
