@@ -33,3 +33,6 @@ pip install git+https://github.com/jlieth/hocr-parser
 
 .. toctree::
    :maxdepth: 2
+
+   reference/index.md
+   generating_hocr/index.md
