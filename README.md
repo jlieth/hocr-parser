@@ -1,6 +1,10 @@
 # hocr-parser
 Python parser for hOCR files using lxml
 
+[![Build Status](https://travis-ci.org/jlieth/hocr-parser.svg?branch=master)](https://travis-ci.org/jlieth/hocr-parser)
+[![codecov](https://codecov.io/gh/jlieth/hocr-parser/branch/master/graph/badge.svg)](https://codecov.io/gh/jlieth/hocr-parser)
+[![Coverage Status](https://coveralls.io/repos/github/jlieth/hocr-parser/badge.svg?branch=master)](https://coveralls.io/github/jlieth/hocr-parser?branch=master)
+
 hOCR is an open standard for representing the results of optical character
 recognition (OCR). The results of OCR (the recognized text, layout, styles,
 etc.) are represented in hOCR using XHTML. This Python module parses an
