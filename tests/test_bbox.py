@@ -19,10 +19,10 @@ class TestBBox:
 
         # valid args
         bbox = BBox((-123, -456, 123, 456))
-        assert bbox.x1 == -123
-        assert bbox.y1 == -456
-        assert bbox.x2 == 123
-        assert bbox.y2 == 456
+        assert bbox.x0 == -123
+        assert bbox.y0 == -456
+        assert bbox.x1 == 123
+        assert bbox.y1 == 456
 
     def test_repr(self):
         bbox = BBox((-123, -456, 123, 456))

@@ -275,10 +275,10 @@ class HOCRNode(lxml.html.HtmlElement):
 
         return BBox(
             (
-                self.bbox.x1 - parent_bbox.x1,
-                self.bbox.y1 - parent_bbox.y1,
-                self.bbox.x2 - parent_bbox.x1,
-                self.bbox.y2 - parent_bbox.y1,
+                self.bbox.x0 - parent_bbox.x0,
+                self.bbox.y0 - parent_bbox.y0,
+                self.bbox.x1 - parent_bbox.x0,
+                self.bbox.y1 - parent_bbox.y0,
             )
         )
 

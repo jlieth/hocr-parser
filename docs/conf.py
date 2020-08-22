@@ -17,6 +17,7 @@
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'guzzle_sphinx_theme',
@@ -62,10 +63,11 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+default_role = 'py:obj'
 
 autodoc_default_options = {
     'member-order': 'bysource',
-    'special-members': '__init__',
+    'special-members': '__init__, __eq__, __repr__',
 }
 
 autodoc_default_flags = [
@@ -82,16 +84,18 @@ import guzzle_sphinx_theme
 
 html_theme_path = guzzle_sphinx_theme.html_theme_path()
 html_theme = 'guzzle_sphinx_theme'
+#html_theme = 'karma_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
     "project_nav_name": "hocr-parser",
-    "globaltoc_depth": 2,
-    "globaltoc_collapse": False,
+    "globaltoc_depth": 3,
+    "globaltoc_collapse": True,
     "globaltoc_includehidden": False,
 }
+#html_theme_options = {}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
