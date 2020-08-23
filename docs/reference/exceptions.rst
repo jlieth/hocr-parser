@@ -1,4 +1,5 @@
-# Module ``exceptions``
+Module `exceptions`
+===================
 
 .. automodule:: hocr_parser.exceptions
    :members:

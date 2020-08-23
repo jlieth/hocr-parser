@@ -15,7 +15,11 @@ class HOCRNode(lxml.html.HtmlElement):
     HOCRDocument class to represent the elements of the HTML tree.
     """
 
+    #: The content of nodes of this class is HTML
     HTML = True
+
+    #: The separators that will be inserted between different ocr elements
+    #: when printing the text as plaintext
     OCR_TEXT_SEPARATORS = {
         "ocrx_word": " ",
         "ocr_line": "\n",
@@ -257,6 +261,7 @@ class HOCRNode(lxml.html.HtmlElement):
         relative to the bbox of the closest ancestor that has a bbox property.
 
         Possible return values:
+
         - None if the current element has no bbox property
         - if none of the element's ancestors has a bbox property, the
           returned rel_bbox will equal its bbox
@@ -288,6 +293,7 @@ class HOCRNode(lxml.html.HtmlElement):
 
         The HOCR standard defines three different properties for indicating
         the confidence of the given ocr word/character:
+
         - x_wconf: http://kba.cloud/hocr-spec/1.2/#x_wconf
           Property value should be a single float between 0 and 100 indicating
           the confidence for the whole word
